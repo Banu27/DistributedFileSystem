@@ -1,0 +1,17 @@
+package buffer;
+
+option java_package = "edu.uiuc.cs425";
+
+message Member {
+		
+	required string IP = 2;
+	required int32 heartbeat_counter = 3;
+	required int64 local_time = 4;
+	required string unique_id = 5;
+	required bool has_left = 6;
+}
+
+message MemberList {
+
+	repeated Member member = 1;
+}
