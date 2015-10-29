@@ -156,7 +156,6 @@ public class Controller {
 	
 	public int IntroduceSelf()
 	{
-		m_oMember.AddSelf();
 		if(m_sNodeType.equals(Commons.NODE_PARTICIPANT))
 		{
 			MemberIntroProxy proxy = new MemberIntroProxy();
@@ -182,6 +181,15 @@ public class Controller {
 			}
 
 			// checkpointing will change this part of the logic
+			//Added call to JoinGroup for getting serialNumbers
+			
+			try {
+				int serialNumber = proxy.JoinGroup();
+				m_oMember.AddSelf(serialNumber);			
+			} catch (TException e2) {
+				// TODO Auto-generated catch block
+				m_oLogger.Error(m_oLogger.StackTraceToString(e2));
+			}
 			
 			ByteBuffer buf;
 			try {

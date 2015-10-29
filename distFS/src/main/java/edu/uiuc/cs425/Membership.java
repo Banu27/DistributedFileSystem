@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.io.BufferedReader;
@@ -35,6 +36,7 @@ public class Membership implements Runnable{
 	private long  										m_nTfail;
 	private String 										m_sIP;
 	private String 										m_sUniqueId;
+	private int											m_nUniqueSerialNumber;
 	private int 										m_nMyHeartBeat;
 	private ReentrantReadWriteLock 						m_oReadWriteLock; 
 	private Lock 										m_oLockR; 
@@ -43,6 +45,7 @@ public class Membership implements Runnable{
 	private int											m_nFailChk;
 	private PrintWriter								    m_oWriter;
 	private ConfigAccessor 								m_oAccessor;
+	private String										m_sIntroducerIP;
 	
 	
 	public String UniqueId()
@@ -50,7 +53,7 @@ public class Membership implements Runnable{
 		return m_sUniqueId;
 	}
 	
-	public int Initialize(ConfigAccessor oAccessor, Logger logger)
+	public int Initialize(ConfigAccessor oAccessor, Logger logger, String introducerIP)
 	{
 		m_oAccessor = oAccessor;
 		m_oHmap 		= new HashMap<String, MembershipListStruct>();
@@ -61,6 +64,7 @@ public class Membership implements Runnable{
 		m_oLockW = m_oReadWriteLock.writeLock();
 		m_nTfail = m_oAccessor.FailureInterval();
 		m_oLogger = logger;
+		m_sIntroducerIP = introducerIP;
 		
 		try {
 			m_sIP  = InetAddress.getLocalHost().getHostAddress();
@@ -75,10 +79,11 @@ public class Membership implements Runnable{
 		return Commons.SUCCESS;
 	}
 		
-	public void AddSelf()
+	public void AddSelf(int serialNumber)
 	{
 		//Write lock. Add self called from controller
 		//m_nSerialNumber = serialNumber;
+		m_nUniqueSerialNumber = serialNumber;
 		m_sUniqueId = new String(m_sIP + ":" + String.valueOf(GetMyLocalTime()));
 		m_oLockW.lock();
 		AddMemberToStruct( m_sUniqueId, m_sIP, m_nMyHeartBeat, GetMyLocalTime());
@@ -86,10 +91,10 @@ public class Membership implements Runnable{
 		m_oLogger.Info(new String("Added self node with id : " + m_sUniqueId));
 	}
 	
-	public void AddMemberToStruct(String uniqueId, String IP, int heartbeatCounter, long localTime)
+	public void AddMemberToStruct(String uniqueId, String IP, int heartbeatCounter, long localTime, int serialNumber)
 	{
 		//No write lock. Write lock present in Merge.
-		MembershipListStruct newMember = new MembershipListStruct(IP, uniqueId, heartbeatCounter, localTime);
+		MembershipListStruct newMember = new MembershipListStruct(IP, uniqueId, heartbeatCounter, localTime, serialNumber);
 		m_oHmap.put(uniqueId,newMember);
 		m_oLogger.Info(new String("IMPORTANT : Added new member to current memberlist : " + uniqueId));
 	}
@@ -121,6 +126,7 @@ public class Membership implements Runnable{
 	         {	Member.Builder member = Member.newBuilder();
 	         	member.setHeartbeatCounter(memberStruct.GetHeartbeatCounter());
 	         	member.setIP(memberStruct.GetIP());
+	         	member.setUniqueSerialNumber(memberStruct.GetUniqueSerialNumber());
 	         	member.setHasLeft(memberStruct.HasLeft());
 	         	member.setLocalTime(memberStruct.GetLocalTime());
 	         	member.setUniqueId(memberStruct.GetUniqueId());
@@ -178,9 +184,10 @@ public class Membership implements Runnable{
 					m_oLogger.Info("Adding node to memberlist " + member.getIP() );
 					String IP = member.getIP();
 					int heartbeatCounter = member.getHeartbeatCounter();
+					int serialNumber = member.getUniqueSerialNumber();
 					long localTime = GetMyLocalTime(); //Our machine localTime
 					String uniqueId = member.getUniqueId();
-					AddMemberToStruct(uniqueId, IP, heartbeatCounter, localTime);
+					AddMemberToStruct(uniqueId, IP, heartbeatCounter, localTime, serialNumber);
 				}
 			}
 		}
@@ -270,6 +277,10 @@ public class Membership implements Runnable{
 					{	 
 						m_oLockW.lock();
 						m_oLogger.Info(new String("IMPORTANT : Removing node : " + memberStruct.GetIP())); //UniqueId instead?
+						if(memberStruct.GetIP().equals(m_sIntroducerIP))
+						{
+							//Send a message to election Object????? and start election!
+						}
 						iterator.remove();
 						m_oLockW.unlock();
 					}
@@ -311,6 +322,11 @@ public class Membership implements Runnable{
 			
 		}
 	}
+	
+	public int GetUniqueSerialNumber()
+	{
+		return m_nUniqueSerialNumber;
+	}
 
 	public int TimeToLeave()
 	{
@@ -327,4 +343,38 @@ public class Membership implements Runnable{
 		 m_oLockR.unlock();
 		 return keyList;
 	 }
+	 
+	 //Read lock
+	 public Vector<Integer> GetSNoList()
+	 {
+		 Vector<Integer> SnoList = new Vector<Integer>();
+		 m_oLockR.lock();
+		 Set<Entry<String, MembershipListStruct>> set = m_oHmap.entrySet();
+		 Iterator<Entry<String, MembershipListStruct>> iterator = set.iterator();
+		 while(iterator.hasNext()) {
+	         Map.Entry mentry = (Map.Entry)iterator.next();
+	         MembershipListStruct memberStruct = (MembershipListStruct) mentry.getValue(); //m_oHmap.get(mentry.getKey());
+	         SnoList.add(memberStruct.GetUniqueSerialNumber());
+	     }
+		 m_oLockR.unlock();
+		 return SnoList;
+	 }
+	 
+	 public Vector<String> GetIPList()
+	 {
+		 Vector<String> IPList = new Vector<String>();
+		 m_oLockR.lock();
+		 Set<Entry<String, MembershipListStruct>> set = m_oHmap.entrySet();
+		 Iterator<Entry<String, MembershipListStruct>> iterator = set.iterator();
+		 while(iterator.hasNext()) {
+	         Map.Entry mentry = (Map.Entry)iterator.next();
+	         MembershipListStruct memberStruct = (MembershipListStruct) mentry.getValue(); //m_oHmap.get(mentry.getKey());
+	         IPList.add(memberStruct.GetIP());
+	     }
+		 m_oLockR.unlock();
+		 return IPList;
+	 }
+	 
+	 
+	 
 }

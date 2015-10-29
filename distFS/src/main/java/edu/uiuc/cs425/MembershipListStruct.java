@@ -8,10 +8,12 @@ public class MembershipListStruct {
 	private int 			m_nHeatbeatCounter;
 	private long 			m_nLocalTime;
 	private m_enumState 	m_eState;
+	private int				m_nSno;
 	
-	public MembershipListStruct(String IP, String uniqueId, int heartbeatCounter, long localTime)
+	public MembershipListStruct(String IP, String uniqueId, int heartbeatCounter, long localTime, int serialNumber)
 	{
 		m_sUniqueId = uniqueId;
+		m_nSno = serialNumber;
 		m_sIP = IP;
 		m_nHeatbeatCounter = heartbeatCounter;
 		m_nLocalTime = localTime;
@@ -44,6 +46,11 @@ public class MembershipListStruct {
 	public int GetHeartbeatCounter()
 	{
 		return m_nHeatbeatCounter;
+	}
+	
+	public int GetUniqueSerialNumber()
+	{
+		return m_nSno;
 	}
 	
 	public String GetUniqueId()

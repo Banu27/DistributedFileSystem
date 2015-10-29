@@ -5,24 +5,30 @@ import java.nio.ByteBuffer;
 import org.apache.thrift.TException;
 
 import edu.uiuc.cs425.MemberIntroducer.Iface;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Introducer implements Iface { //Why implements Iface??
 
-	private Membership m_oMembershipObject; //The membership object of the introducer
-	private Logger m_oLogger;
+	private Membership 		m_oMembershipObject; //The membership object of the introducer
+	private Logger 			m_oLogger;
+	private int 			m_nSerialNumber;
 	
 	public Introducer(Membership member,Logger oLogger)
 	{
 		m_oLogger = oLogger;
 		m_oMembershipObject = member;
+		m_nSerialNumber = 0;
 		m_oLogger.Info(new String("Introducer is up"));
 	}
 	
 	public int JoinGroup() throws TException {
 		// TODO Auto-generated method stub
 		//No threading so no lock
+		synchronized (this) {
+			m_nSerialNumber = m_nSerialNumber + 1;	
+		}
 		m_oLogger.Info(new String("New node has joined"));
-		return Commons.SUCCESS;
+		return m_nSerialNumber;//Commons.SUCCESS;
 	}
 
 	public ByteBuffer GetMembershipList() throws TException {

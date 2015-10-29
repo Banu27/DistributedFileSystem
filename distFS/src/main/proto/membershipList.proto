@@ -9,6 +9,7 @@ message Member {
 	required int64 local_time = 4;
 	required string unique_id = 5;
 	required bool has_left = 6;
+	required int32 unique_serial_number = 7;
 }
 
 message MemberList {
