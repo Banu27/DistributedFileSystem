@@ -86,7 +86,7 @@ public class Membership implements Runnable{
 		m_nUniqueSerialNumber = serialNumber;
 		m_sUniqueId = new String(m_sIP + ":" + String.valueOf(GetMyLocalTime()));
 		m_oLockW.lock();
-		AddMemberToStruct( m_sUniqueId, m_sIP, m_nMyHeartBeat, GetMyLocalTime());
+		AddMemberToStruct( m_sUniqueId, m_sIP, m_nMyHeartBeat, GetMyLocalTime(), serialNumber);
 		m_oLockW.unlock();
 		m_oLogger.Info(new String("Added self node with id : " + m_sUniqueId));
 	}
@@ -238,8 +238,8 @@ public class Membership implements Runnable{
 	
 	public MemberList ObjectFromByteBuffer(byte[] buffer) throws Exception 
 	{
-		return MemberList.parseFrom(buffer);   //Need to make sure the message is the correct return type
-	 }
+		return MemberList.parseFrom(buffer);  
+	}
 	
 	public String GetIP(String uniqueId)
 	{
@@ -279,7 +279,8 @@ public class Membership implements Runnable{
 						m_oLogger.Info(new String("IMPORTANT : Removing node : " + memberStruct.GetIP())); //UniqueId instead?
 						if(memberStruct.GetIP().equals(m_sIntroducerIP))
 						{
-							//Send a message to election Object????? and start election!
+							//Send a message to election Object????? and start election! Call from here??
+							
 						}
 						iterator.remove();
 						m_oLockW.unlock();
@@ -374,7 +375,5 @@ public class Membership implements Runnable{
 		 m_oLockR.unlock();
 		 return IPList;
 	 }
-	 
-	 
 	 
 }

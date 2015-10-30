@@ -26,7 +26,9 @@ public class Controller {
 	private static final String sLogPath = "/Users/anirudhnair/mp2/log/log.txt";
 	private Scanner 		m_oUserInput;
 	private String 			introIP;
-	private String 			hostIP;
+	private String 			hostIP; //What is this? - Banu
+	private Election		m_oElection;
+	
 	
 	public Controller()
 	{
@@ -36,7 +38,8 @@ public class Controller {
 		m_oIntroducer   = null;
 		m_oHeartbeat    = new Heartbeat();
 		m_oLogger		= new Logger();
-		m_oUserInput    = new Scanner(System.in);	
+		m_oUserInput    = new Scanner(System.in);
+		m_oElection 	= new Election();
 	}
 	
 	public int Initialize(String sXML)
@@ -75,8 +78,13 @@ public class Controller {
 		
 		m_oLogger.Info("Nodetype: " + m_sNodeType);
 		
-		m_oMember.Initialize(m_oConfig, m_oLogger);
+		//Membership object of class initializing here
+		m_oMember.Initialize(m_oConfig, m_oLogger, introIP);
 		
+		//Initializing Election object
+		m_oElection.Initialize(m_oMember,m_oLogger);
+		
+		//CommServer object initializing here
 		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
 		{
 			//Set membership obj in introducer
@@ -99,6 +107,8 @@ public class Controller {
 			}
 		}
 		
+		
+		//Intializing Heartbeat object
 		if( Commons.FAILURE == m_oHeartbeat.Initialize(m_oMember, m_oConfig, m_oLogger))
 		{
 			m_oLogger.Error("Failed to initialize the heartbeat sender");

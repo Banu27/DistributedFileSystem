@@ -22,7 +22,7 @@ public class CommServer {
 	
 	public int Initialize(int nHBPort, Membership oMember, Introducer oIntroducer, Logger oLogger)
 	{
-		m_oIntroImpl 		= new MemberIntroImpl();
+		m_oIntroImpl 		= new MemberIntroImpl(); //Why does the Introducer not have a hb recvr??
 		m_oLogger			= oLogger;
 		if( Commons.FAILURE == m_oIntroImpl.Initialize())
 		{

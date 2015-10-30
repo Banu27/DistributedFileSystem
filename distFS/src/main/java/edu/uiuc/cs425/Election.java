@@ -10,17 +10,19 @@ public class Election {
 
 	private Membership 		m_oMembershipList;
 	private int				m_nCurrentSerialNumber;
+	private Logger			m_oLogger;
 	
-	private boolean isMasterAlive()
+	public boolean isMasterAlive()
 	{
 		return true;
 	}
 	
-	private void Intialize()
+	public void Initialize(Membership memberObject, Logger loggerObject) //References from controller
 	{
-		//initalize m_oMembershipList
-		m_oMembershipList = new Membership();
+		//Initialize m_oMembershipList
+		m_oMembershipList = memberObject;
 		m_nCurrentSerialNumber = m_oMembershipList.GetUniqueSerialNumber();		
+		m_oLogger = loggerObject;
 	}
 	
 	public void sendElectionMessages()
@@ -28,11 +30,13 @@ public class Election {
 		Vector<Integer> SnoList = m_oMembershipList.GetSNoList();
 		Vector<String> IPList = m_oMembershipList.GetIPList();
 		
-		Iterator it = SnoList.iterator();
-		while(it.hasNext())
+		Iterator itSno = SnoList.iterator();
+		Iterator itIP = IPList.iterator();
+		while(itSno.hasNext() && itIP.hasNext())
 		{
-			if( (Integer) it.next() < m_nCurrentSerialNumber)
+			if( (Integer) itSno.next() < m_nCurrentSerialNumber)
 			{
+				//itIP.next().toString() - This is the IP. 
 				//Create a connection and send the Election message
 				//proxy.sendElectionMessages();
 			}
@@ -57,10 +61,5 @@ public class Election {
 	public void receiveElectionMessage()
 	{
 		sendElectionMessages();
-		
 	}
-	
-	
-	
-	
 }

@@ -5,4 +5,6 @@ typedef i32 int
 service MemberIntroducer{
    int JoinGroup();
    binary GetMembershipList();
+   void ReceiveElectionMessage();
+   void ReceiveCoordinationMessage();
 }

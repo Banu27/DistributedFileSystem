@@ -30,5 +30,12 @@ public class MemberIntroImpl implements Iface {
 		// TODO Auto-generated method stub
 		return m_oIntroObj.GetMembershipList();
 	}
+	
+	public void ReceiveElectionMessage() throws TException {
+		
+		//Call the receiveElectionMessage on the particular proxy here. But this seems to have 
+		//only the introducer
+		
+	}
 
 }
