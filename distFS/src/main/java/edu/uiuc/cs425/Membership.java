@@ -284,8 +284,9 @@ public class Membership implements Runnable{
 					{	 
 						m_oLockW.lock();
 						m_oLogger.Info(new String("IMPORTANT : Removing node : " + memberStruct.GetIP())); //UniqueId instead?
-						if(memberStruct.GetIP().equals(m_sIntroducerIP))
+						if(memberStruct.GetUniqueId().equals(m_oElection.GetLeaderId()))
 						{
+							m_oLogger.Info(new String("Starting new election, leader failure detected"));
 							m_oElection.StartElection();
 							//Send a message to election Object????? and start election! Call from here??
 						}
