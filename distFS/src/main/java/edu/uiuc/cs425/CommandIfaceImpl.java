@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 
 import org.apache.thrift.TException;
 
-import edu.uiuc.cs425.MemberIntroducer.Iface;
+import edu.uiuc.cs425.CommandInterface.Iface;
 
-public class MemberIntroImpl implements Iface {
+public class CommandIfaceImpl implements Iface {
 
 	private Introducer m_oIntroObj;
 	
@@ -35,6 +35,11 @@ public class MemberIntroImpl implements Iface {
 		
 		//Call the receiveElectionMessage on the particular proxy here. But this seems to have 
 		//only the introducer
+		
+	}
+
+	public void ReceiveCoordinationMessage() throws TException {
+		// TODO Auto-generated method stub
 		
 	}
 

@@ -1,5 +1,5 @@
 package edu.uiuc.cs425;
-import edu.uiuc.cs425.MemberIntroImpl;
+import edu.uiuc.cs425.CommandIfaceImpl;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.server.TNonblockingServer;
@@ -14,7 +14,7 @@ import edu.uiuc.cs425.HeartBeatReceiver;
 
 public class CommServer {
 	
-	private MemberIntroImpl 		m_oIntroImpl;
+	private CommandIfaceImpl 		m_oIntroImpl;
 	private HeartBeatReceiver       m_oHBRecvr;
 	private Thread 					m_oIntroServThread;
 	private Thread 					m_oHBRecvrThread;
@@ -22,7 +22,7 @@ public class CommServer {
 	
 	public int Initialize(int nHBPort, Membership oMember, Introducer oIntroducer, Logger oLogger)
 	{
-		m_oIntroImpl 		= new MemberIntroImpl(); //Why does the Introducer not have a hb recvr??
+		m_oIntroImpl 		= new CommandIfaceImpl(); //Why does the Introducer not have a hb recvr??
 		m_oLogger			= oLogger;
 		if( Commons.FAILURE == m_oIntroImpl.Initialize())
 		{
@@ -59,7 +59,7 @@ public class CommServer {
             public void run() { 
             	try {
             		TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(nPort);
-        		    TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(new MemberIntroducer.Processor(m_oIntroImpl)));
+        		    TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(new CommandInterface.Processor(m_oIntroImpl)));
         		    server.serve();
         		} catch (TException e)
         		{

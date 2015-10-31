@@ -168,7 +168,7 @@ public class Controller {
 	{
 		if(m_sNodeType.equals(Commons.NODE_PARTICIPANT))
 		{
-			MemberIntroProxy proxy = new MemberIntroProxy();
+			CommandIfaceProxy proxy = new CommandIfaceProxy();
 			int counter = 0;
 			// continous pinging for introducer to connect
 			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.IntroducerPort(), m_oLogger))
