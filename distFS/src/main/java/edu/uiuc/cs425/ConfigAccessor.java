@@ -134,7 +134,7 @@ public class ConfigAccessor {
 			else if(nNode.getNodeName() == "Loss")
 			{
 				Element eElement = (Element) nNode;
-				m_nLossRate = Integer.parseInt(eElement.getAttribute("Rate"));
+				m_nLossRate = Integer.parseInt(eElement.getAttribute("rate"));
 			}
 			else if(nNode.getNodeName() == "Logger")
 			{
