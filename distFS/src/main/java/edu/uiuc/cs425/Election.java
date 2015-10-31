@@ -49,6 +49,7 @@ public class Election {
 	{
 		m_nSentElectionMessages = 0;
 		m_oLogger.Info(new String("Starting Election now !"));
+		m_oLogger.Info(new String("My serial number : " + String.valueOf(m_nCurrentSerialNumber)));
 		SendElectionMessages();
 	}
 	
@@ -61,7 +62,7 @@ public class Election {
 		Iterator itIP = IPList.iterator();
 		while(itSno.hasNext() && itIP.hasNext())
 		{
-			m_oLogger.Info(new String("Going through the list of IPs"));
+			m_oLogger.Info(new String("Checking Sno : " + itSno.next().toString()));
 			if( (Integer) itSno.next() < m_nCurrentSerialNumber)
 			{
 				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
