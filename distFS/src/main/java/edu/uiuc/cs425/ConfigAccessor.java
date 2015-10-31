@@ -46,7 +46,7 @@ public class ConfigAccessor {
 		return m_sIntroducerIP;
 	}
 	
-	public int 		IntroducerPort()
+	public int 		CmdPort()
 	{
 		return m_nIntroducerPort;
 	}

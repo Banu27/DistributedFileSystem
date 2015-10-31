@@ -81,7 +81,7 @@ public class Controller {
 		m_oMember.Initialize(m_oConfig, m_oLogger, introIP);
 		
 		//Initializing Election object
-		m_oElection.Initialize(m_oMember,m_oLogger);
+		m_oElection.Initialize(m_oMember,m_oLogger,m_oConfig.CmdPort());
 		
 		m_oMember.setElectionObject(m_oElection);
 		
@@ -125,7 +125,7 @@ public class Controller {
 	{
 		if( m_sNodeType.equals(Commons.NODE_INTROCUDER))
 		{
-			m_oCommServ.StartIntroService(m_oConfig.IntroducerPort()); //Giving introducer port here
+			m_oCommServ.StartIntroService(m_oConfig.CmdPort()); //Giving introducer port here
 		}
 		// bring up the heartbeat receiver
 		m_oCommServ.StartHeartBeatRecvr();
@@ -177,10 +177,10 @@ public class Controller {
 		}
 		if(m_sNodeType.equals(Commons.NODE_PARTICIPANT))
 		{
-			MemberIntroProxy proxy = new MemberIntroProxy();
+			CommandIfaceProxy proxy = new CommandIfaceProxy();
 			int counter = 0;
 			// continuous pinging for introducer to connect
-			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.IntroducerPort(), m_oLogger))
+			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.CmdPort(), m_oLogger))
 			{
 				if( counter++ > 100) 
 				{

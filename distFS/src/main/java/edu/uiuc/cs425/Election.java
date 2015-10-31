@@ -4,6 +4,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+
+import org.apache.thrift.TException;
+
 import java.util.Map.Entry;
 
 public class Election {
@@ -14,6 +17,7 @@ public class Election {
 	private int				m_nSentElectionMessages;
 	private String			m_sLeaderId;
 	private String 			m_sUniqueId;
+	private int				m_nServicePortForProxys;
 	
 	public boolean IsMasterAlive()
 	{
@@ -25,8 +29,13 @@ public class Election {
 		m_sLeaderId = leaderId;
 	}
 	
+	public String GetLeaderId()
+	{
+		return m_sLeaderId;
+	}
 	
-	public void Initialize(Membership memberObject, Logger loggerObject) //References from controller
+	
+	public void Initialize(Membership memberObject, Logger loggerObject, int servicePort) //References from controller
 	{
 		//Initialize m_oMembershipList
 		m_oMembershipList = memberObject;
@@ -34,6 +43,7 @@ public class Election {
 		m_oLogger = loggerObject;
 		m_sUniqueId = m_oMembershipList.UniqueId();
 		m_sLeaderId = new String();
+		m_nServicePortForProxys = servicePort;
 	}
 	
 	public void StartElection()
@@ -53,19 +63,22 @@ public class Election {
 		{
 			if( (Integer) itSno.next() < m_nCurrentSerialNumber)
 			{
-				//CommServerTemp = new Proxy??(//Use the IP here)??
-				//if connection not success exception caught - ex leader case
-				//No timeouts
-				//if(Commons.Success  = CommServerTemp.receiveElectionMessage())
-					m_nSentElectionMessages ++;
-				//itIP.next().toString() - This is the IP. 
-				//Create a connection and send the Election message
-				//proxy.sendElectionMessages();
+				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+				if(Commons.SUCCESS == ProxyTemp.Initialize(itIP.next().toString(),m_nServicePortForProxys,m_oLogger))
+				{	try {
+						if(Commons.SUCCESS  == ProxyTemp.ReceiveElectionMessage())
+							m_nSentElectionMessages ++;
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
-			if(m_nSentElectionMessages == 0)
-			{
-				SendCoordinationMessage();
-			}
+		}
+		if(m_nSentElectionMessages == 0)
+		{
+			m_sLeaderId = m_sUniqueId;
+			SendCoordinationMessage();
 		}
 	}
 	
@@ -78,8 +91,16 @@ public class Election {
 		{
 			 String IP = it.next().toString();
 			{
-				//Create a connection and send Coordination Message
-				//proxy.receiveCoordinationMessage(m_sUniqueId);
+				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+				if(Commons.SUCCESS == ProxyTemp.Initialize(it.next().toString(),m_nServicePortForProxys,m_oLogger))
+				{	try {
+						ProxyTemp.ReceiveCoordinationMessage(m_sUniqueId);
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
 			}
 		}
 	}

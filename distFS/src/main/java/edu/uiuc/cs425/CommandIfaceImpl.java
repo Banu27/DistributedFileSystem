@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 
 import org.apache.thrift.TException;
 
-import edu.uiuc.cs425.MemberIntroducer.Iface;
+import edu.uiuc.cs425.CommandInterface.Iface;
 
-public class MemberIntroImpl implements Iface {
+public class CommandIfaceImpl implements Iface {
 
 	private Introducer 		m_oIntroObj;
 	private Election  		m_oElection;
@@ -51,5 +51,10 @@ public class MemberIntroImpl implements Iface {
 		m_oElection.ReceiveCoordinationMessage(leaderId);
 	}
 	
+
+	public void ReceiveCoordinationMessage() throws TException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

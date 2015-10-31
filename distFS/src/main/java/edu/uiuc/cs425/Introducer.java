@@ -4,10 +4,10 @@ import java.nio.ByteBuffer;
 
 import org.apache.thrift.TException;
 
-import edu.uiuc.cs425.MemberIntroducer.Iface;
+import edu.uiuc.cs425.CommandInterface.Iface;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Introducer { //Why implements Iface??
+public class Introducer { 
 
 	private Membership 		m_oMembershipObject; //The membership object of the introducer
 	private Logger 			m_oLogger;

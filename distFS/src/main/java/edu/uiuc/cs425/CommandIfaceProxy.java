@@ -9,16 +9,16 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
-import edu.uiuc.cs425.MemberIntroducer.Iface;
-import edu.uiuc.cs425.MemberIntroducer;
+import edu.uiuc.cs425.CommandInterface.Iface;
+import edu.uiuc.cs425.CommandInterface;
 
-public class MemberIntroProxy implements Iface {
+public class CommandIfaceProxy implements Iface {
 	
-	private MemberIntroducer.Client m_oClient;
+	private CommandInterface.Client m_oClient;
 	private TTransport transport;
 	private Logger m_oLogger;
 	
-	public MemberIntroProxy()
+	public CommandIfaceProxy()
 	{
 		m_oClient = null;
 	}
@@ -35,7 +35,7 @@ public class MemberIntroProxy implements Iface {
 			m_oLogger.Error(new String("Failed to initialize MemberIntro proxy")); //IP????
 			return Commons.FAILURE;
 		}
-	    m_oClient = new MemberIntroducer.Client(new TBinaryProtocol(transport));
+	    m_oClient = new CommandInterface.Client(new TBinaryProtocol(transport));
 	    m_oLogger.Info(new String("Created Member Proxy"));
 		return Commons.SUCCESS;
 	}
@@ -69,7 +69,4 @@ public class MemberIntroProxy implements Iface {
 		
 		m_oClient.ReceiveCoordinationMessage(leaderId);
 	}
-	
-	
-	
 }

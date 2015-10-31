@@ -213,6 +213,7 @@ public class Membership implements Runnable{
 				m_oHmap.get(vMembers.get(i)).Print();
 		}
 		m_oLockR.unlock();
+		System.out.println("Current Leader Id : " + m_oElection.GetLeaderId());
 		System.out.println("=============================");
 	}
     
