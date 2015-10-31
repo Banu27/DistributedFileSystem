@@ -87,28 +87,14 @@ public class Controller {
 		
 		//CommServer object initializing here
 		//ToDo - Use CommServer here for all and not just intoducer
-		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
-		{
-			//Set membership obj in introducer
-			
-			m_oIntroducer = new Introducer(m_oMember,m_oLogger,m_oElection);
-
-			if( Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), 
-					m_oMember, m_oIntroducer,m_oLogger) )
-			{
-				m_oLogger.Error("Failed to initialize the communication server");
-				return Commons.FAILURE;
-			}
-		} else 
-		{
-			if( Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), 
-					m_oMember, m_oLogger))
-			{
-				m_oLogger.Error("Failed to initialize the communication server");
-				return Commons.FAILURE;
-			}
-		}
 		
+		m_oIntroducer = new Introducer(m_oMember, m_oLogger, m_oElection);
+		
+		if(Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), m_oMember, m_oIntroducer, m_oLogger, m_oElection))
+		{
+			m_oLogger.Error("Failed to initialize the communication server");
+			return Commons.FAILURE;
+		}		
 		
 		//Intializing Heartbeat object
 		if( Commons.FAILURE == m_oHeartbeat.Initialize(m_oMember, m_oConfig, m_oLogger))

@@ -25,8 +25,9 @@ public class Election {
 	
 	public void SetSerialNumber(int serialNumber)
 	{
-		m_oLogger.Info(new String("Unique serial number set as : " + String.valueOf(m_nUniqueSerialNumber)));
 		m_nUniqueSerialNumber = serialNumber;
+		m_oLogger.Info(new String("Unique serial number set as : " + String.valueOf(m_nUniqueSerialNumber)));
+		
 	}
 	
 	public void SetLeader(String leaderId)
