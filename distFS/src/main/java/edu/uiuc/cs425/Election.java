@@ -79,6 +79,7 @@ public class Election {
 		{
 			m_oLogger.Info(new String("No election messages were sent, I AM THE LEADER"));
 			m_sLeaderId = m_sUniqueId;
+			m_oLogger.Info(new String("My leader id is : " + m_sLeaderId));
 			SendCoordinationMessage();
 		}
 	}
