@@ -26,6 +26,7 @@ public final class Commons {
 	public static int aliveNumber = NUMBER_OF_VMS;
 	public static final String NODE_INTROCUDER = "introducer";
 	public static final String NODE_PARTICIPANT = "participant";
+	
 
 	
 	//Floyd's - Random 
