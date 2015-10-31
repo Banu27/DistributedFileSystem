@@ -282,7 +282,6 @@ public class Membership implements Runnable{
 					if((memberStruct.IsSuspect() || memberStruct.HasLeft()) 
 							&& ((GetMyLocalTime() - memberStruct.GetLocalTime()) > 2*m_nTfail))
 					{	 
-						m_oLockW.lock();
 						m_oLogger.Info(new String("IMPORTANT : Removing node : " + memberStruct.GetIP())); //UniqueId instead?
 						m_oLogger.Info(new String("Unique id of failed node : " + memberStruct.GetUniqueId()));
 						m_oLogger.Info(new String("Leader id : " + m_oElection.GetLeaderId()));
@@ -291,7 +290,9 @@ public class Membership implements Runnable{
 							m_oLogger.Info(new String("Starting new election, leader failure detected"));
 							m_oElection.StartElection();
 							//Send a message to election Object????? and start election! Call from here??
+						
 						}
+						m_oLockW.lock();
 						iterator.remove();
 						m_oLockW.unlock();
 					}

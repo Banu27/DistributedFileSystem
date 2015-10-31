@@ -62,7 +62,7 @@ public class CommandIfaceProxy implements Iface {
 	}
 	
 	public int ReceiveElectionMessage() throws TException {
-		return Commons.SUCCESS;		
+		return m_oClient.ReceiveElectionMessage();		
 	}
 	
 	public void ReceiveCoordinationMessage(String leaderId) throws TException {
