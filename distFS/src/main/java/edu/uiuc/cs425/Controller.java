@@ -207,6 +207,7 @@ public class Controller {
 			
 			try {
 				int serialNumber = proxy.JoinGroup();
+				m_oLogger.Info(new String("Received serial number from introdcr : " + String.valueOf(serialNumber)));
 				m_oMember.AddSelf(serialNumber);
 				m_oElection.SetSerialNumber(serialNumber);
 				m_oElection.SetLeader(proxy.GetLeaderId());
