@@ -42,6 +42,7 @@ public class Election {
 		m_nCurrentSerialNumber = m_oMembershipList.GetUniqueSerialNumber();		
 		m_oLogger = loggerObject;
 		m_sUniqueId = m_oMembershipList.UniqueId();
+		m_oLogger.Info(new String("My unique id is : " + m_sUniqueId));
 		//m_sLeaderId = new String();
 		m_nServicePortForProxys = servicePort;
 	}
