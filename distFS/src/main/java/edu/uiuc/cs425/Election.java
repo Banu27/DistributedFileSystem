@@ -77,6 +77,7 @@ public class Election {
 		}
 		if(m_nSentElectionMessages == 0)
 		{
+			m_oLogger.Info(new String("No election messages were sent, I AM THE LEADER"));
 			m_sLeaderId = m_sUniqueId;
 			SendCoordinationMessage();
 		}
@@ -89,20 +90,19 @@ public class Election {
 		Iterator<String> it = IPList.iterator();
 		while(it.hasNext())
 		{
-			 String IP = it.next().toString();
-			{
-				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-				if(Commons.SUCCESS == ProxyTemp.Initialize(it.next().toString(),m_nServicePortForProxys,m_oLogger))
-				{	try {
+			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+			if(Commons.SUCCESS == ProxyTemp.Initialize(it.next().toString(),m_nServicePortForProxys,m_oLogger))
+			{	
+				try {
 						ProxyTemp.ReceiveCoordinationMessage(m_sUniqueId);
 					} catch (TException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				}
-
 			}
+
 		}
+		
 	}
 	
 	public void ReceiveCoordinationMessage(String leaderId)
