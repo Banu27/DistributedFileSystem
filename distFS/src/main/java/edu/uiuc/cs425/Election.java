@@ -16,7 +16,6 @@ public class Election {
 	private Logger			m_oLogger;
 	private int				m_nSentElectionMessages;
 	private String			m_sLeaderId;
-	private String 			m_sUniqueId;
 	private int				m_nServicePortForProxys;
 	
 	public boolean IsMasterAlive()
@@ -28,7 +27,7 @@ public class Election {
 	{
 		m_sLeaderId = leaderId;
 	}
-	
+		
 	public String GetLeaderId()
 	{
 		return m_sLeaderId;
@@ -41,8 +40,7 @@ public class Election {
 		m_oMembershipList = memberObject;
 		m_nCurrentSerialNumber = m_oMembershipList.GetUniqueSerialNumber();		
 		m_oLogger = loggerObject;
-		m_sUniqueId = m_oMembershipList.UniqueId();
-		m_oLogger.Info(new String("My unique id is : " + m_sUniqueId));
+		//m_oLogger.Info(new String("My unique id is : " + m_sUniqueId));
 		//m_sLeaderId = new String();
 		m_nServicePortForProxys = servicePort;
 	}
@@ -79,7 +77,7 @@ public class Election {
 		if(m_nSentElectionMessages == 0)
 		{
 			m_oLogger.Info(new String("No election messages were sent, I AM THE LEADER"));
-			m_sLeaderId = m_sUniqueId;
+			m_sLeaderId = m_oMembershipList.UniqueId();
 			m_oLogger.Info(new String("My leader id is : " + m_sLeaderId));
 			SendCoordinationMessage();
 		}
@@ -96,7 +94,7 @@ public class Election {
 			if(Commons.SUCCESS == ProxyTemp.Initialize(it.next().toString(),m_nServicePortForProxys,m_oLogger))
 			{	
 				try {
-						ProxyTemp.ReceiveCoordinationMessage(m_sUniqueId);
+						ProxyTemp.ReceiveCoordinationMessage(m_sLeaderId);
 					} catch (TException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
