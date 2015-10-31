@@ -62,8 +62,9 @@ public class Election {
 		Iterator itIP = IPList.iterator();
 		while(itSno.hasNext() && itIP.hasNext())
 		{
-			m_oLogger.Info(new String("Checking Sno : " + itSno.next().toString()));
-			if( (Integer) itSno.next() < m_nCurrentSerialNumber)
+			int Sno = (Integer) itSno.next();
+			m_oLogger.Info(new String("Checking Sno : " + String.valueOf(Sno)));
+			if( Sno < m_nCurrentSerialNumber)
 			{
 				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 				if(Commons.SUCCESS == ProxyTemp.Initialize(itIP.next().toString(),m_nServicePortForProxys,m_oLogger))
