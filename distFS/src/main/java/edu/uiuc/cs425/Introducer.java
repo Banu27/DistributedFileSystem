@@ -7,18 +7,24 @@ import org.apache.thrift.TException;
 import edu.uiuc.cs425.MemberIntroducer.Iface;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Introducer implements Iface { //Why implements Iface??
+public class Introducer { //Why implements Iface??
 
 	private Membership 		m_oMembershipObject; //The membership object of the introducer
 	private Logger 			m_oLogger;
-	private int 			m_nSerialNumber;
+	private int				m_nSerialNumber;
+	private String			m_sLeaderUniqueId;
 	
 	public Introducer(Membership member,Logger oLogger)
 	{
 		m_oLogger = oLogger;
 		m_oMembershipObject = member;
-		m_nSerialNumber = 0;
+		m_nSerialNumber = 1;
 		m_oLogger.Info(new String("Introducer is up"));
+	}
+	
+	public String GetLeaderId() 
+	{
+		return m_sLeaderUniqueId;
 	}
 	
 	public int JoinGroup() throws TException {

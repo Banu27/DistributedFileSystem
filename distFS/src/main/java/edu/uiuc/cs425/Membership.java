@@ -46,12 +46,18 @@ public class Membership implements Runnable{
 	private PrintWriter								    m_oWriter;
 	private ConfigAccessor 								m_oAccessor;
 	private String										m_sIntroducerIP;
-	
+	private	Election									m_oElection;
 	
 	public String UniqueId()
 	{
 		return m_sUniqueId;
 	}
+	
+	public void setElectionObject(Election electionObject)
+	{
+		m_oElection = electionObject;
+	}
+	
 	
 	public int Initialize(ConfigAccessor oAccessor, Logger logger, String introducerIP)
 	{
@@ -279,8 +285,8 @@ public class Membership implements Runnable{
 						m_oLogger.Info(new String("IMPORTANT : Removing node : " + memberStruct.GetIP())); //UniqueId instead?
 						if(memberStruct.GetIP().equals(m_sIntroducerIP))
 						{
+							m_oElection.StartElection();
 							//Send a message to election Object????? and start election! Call from here??
-							
 						}
 						iterator.remove();
 						m_oLockW.unlock();

@@ -31,7 +31,7 @@ public class CommServer {
 		}
 		m_oIntroImpl.SetIntoObj(oIntroducer);
 		
-		
+		//Calling other Initialize
 		Initialize(nHBPort,oMember,m_oLogger);
 		return Commons.SUCCESS;
 	}

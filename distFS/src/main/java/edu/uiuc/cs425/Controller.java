@@ -29,7 +29,6 @@ public class Controller {
 	private String 			hostIP; //What is this? - Banu
 	private Election		m_oElection;
 	
-	
 	public Controller()
 	{
 		m_oConfig 		= new ConfigAccessor();
@@ -84,7 +83,10 @@ public class Controller {
 		//Initializing Election object
 		m_oElection.Initialize(m_oMember,m_oLogger);
 		
+		m_oMember.setElectionObject(m_oElection);
+		
 		//CommServer object initializing here
+		//ToDo - Use CommServer here for all and not just intoducer
 		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
 		{
 			//Set membership obj in introducer
@@ -118,12 +120,12 @@ public class Controller {
 	}
 	
 
-	
+	//Starting the thrift and UDP servers here
 	public void StartAllServices()
 	{
 		if( m_sNodeType.equals(Commons.NODE_INTROCUDER))
 		{
-			m_oCommServ.StartIntroService(m_oConfig.IntroducerPort());
+			m_oCommServ.StartIntroService(m_oConfig.IntroducerPort()); //Giving introducer port here
 		}
 		// bring up the heartbeat receiver
 		m_oCommServ.StartHeartBeatRecvr();
@@ -165,12 +167,19 @@ public class Controller {
 	
 	
 	public int IntroduceSelf()
-	{
+	{	
+		//Introducer always comes up with serialNumber 0
+		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
+		{
+			m_oMember.AddSelf(0);
+			m_oElection.SetLeader(m_oMember.UniqueId());
+			RecoverFromCheckPoint();
+		}
 		if(m_sNodeType.equals(Commons.NODE_PARTICIPANT))
 		{
 			MemberIntroProxy proxy = new MemberIntroProxy();
 			int counter = 0;
-			// continous pinging for introducer to connect
+			// continuous pinging for introducer to connect
 			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.IntroducerPort(), m_oLogger))
 			{
 				if( counter++ > 100) 
@@ -195,7 +204,8 @@ public class Controller {
 			
 			try {
 				int serialNumber = proxy.JoinGroup();
-				m_oMember.AddSelf(serialNumber);			
+				m_oMember.AddSelf(serialNumber);
+				m_oElection.SetLeader(proxy.GetLeaderId());
 			} catch (TException e2) {
 				// TODO Auto-generated catch block
 				m_oLogger.Error(m_oLogger.StackTraceToString(e2));
@@ -221,7 +231,6 @@ public class Controller {
 		}
 		
 		// recover from checkpoint
-		RecoverFromCheckPoint();
 		return Commons.SUCCESS;
 	}
 	
@@ -236,6 +245,7 @@ public class Controller {
 				String sInput = m_oUserInput.nextLine();
 				if(sInput.equalsIgnoreCase("yes"))
 				{
+					//UPADATE LEADER!!!
 					try {
 						BufferedReader brCP = new BufferedReader(new FileReader(m_oConfig.GetCPPath()));
 						String text = brCP.readLine();

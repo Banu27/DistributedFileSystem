@@ -45,6 +45,10 @@ public class MemberIntroProxy implements Iface {
 		m_oLogger.Info(new String("Joining Group"));
 		return m_oClient.JoinGroup();
 	}
+	
+	public String GetLeaderId() throws TException{
+		return m_oClient.GetLeaderId();
+	}
 
 	public ByteBuffer GetMembershipList() throws TException {
 		// TODO Auto-generated method stub
@@ -56,4 +60,16 @@ public class MemberIntroProxy implements Iface {
 	{
 		transport.close();
 	}
+	
+	public int ReceiveElectionMessage() throws TException {
+		return Commons.SUCCESS;		
+	}
+	
+	public void ReceiveCoordinationMessage(String leaderId) throws TException {
+		
+		m_oClient.ReceiveCoordinationMessage(leaderId);
+	}
+	
+	
+	
 }
