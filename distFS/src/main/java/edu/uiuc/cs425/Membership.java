@@ -69,7 +69,6 @@ public class Membership implements Runnable{
 		m_oLockW = m_oReadWriteLock.writeLock();
 		m_nTfail = m_oAccessor.FailureInterval();
 		m_oLogger = logger;
-		m_sIntroducerIP = introducerIP;
 		
 		try {
 			m_sIP  = InetAddress.getLocalHost().getHostAddress();
