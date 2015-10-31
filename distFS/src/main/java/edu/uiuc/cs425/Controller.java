@@ -91,7 +91,7 @@ public class Controller {
 		{
 			//Set membership obj in introducer
 			
-			m_oIntroducer = new Introducer(m_oMember,m_oLogger);
+			m_oIntroducer = new Introducer(m_oMember,m_oLogger,m_oElection);
 
 			if( Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), 
 					m_oMember, m_oIntroducer,m_oLogger) )
