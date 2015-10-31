@@ -45,7 +45,6 @@ public class Membership implements Runnable{
 	private int											m_nFailChk;
 	private PrintWriter								    m_oWriter;
 	private ConfigAccessor 								m_oAccessor;
-	private String										m_sIntroducerIP;
 	private	Election									m_oElection;
 	
 	public String UniqueId()

@@ -34,7 +34,7 @@ public class Introducer {
 		synchronized (this) {
 			m_nSerialNumber = m_nSerialNumber + 1;	
 		}
-		m_oLogger.Info(new String("New node has joined"));
+		m_oLogger.Info(new String("New node has joined with serial number : " + String.valueOf(m_nSerialNumber)));
 		return m_nSerialNumber;//Commons.SUCCESS;
 	}
 

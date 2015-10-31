@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 public class Election {
 
 	private Membership 		m_oMembershipList;
-	private int				m_nCurrentSerialNumber;
+	private int				m_nUniqueSerialNumber;
 	private Logger			m_oLogger;
 	private int				m_nSentElectionMessages;
 	private String			m_sLeaderId;
@@ -21,6 +21,12 @@ public class Election {
 	public boolean IsMasterAlive()
 	{
 		return true;
+	}
+	
+	public void SetSerialNumber(int serialNumber)
+	{
+		m_oLogger.Info(new String("Unique serial number set as : " + String.valueOf(m_nUniqueSerialNumber)));
+		m_nUniqueSerialNumber = serialNumber;
 	}
 	
 	public void SetLeader(String leaderId)
@@ -38,7 +44,7 @@ public class Election {
 	{
 		//Initialize m_oMembershipList
 		m_oMembershipList = memberObject;
-		m_nCurrentSerialNumber = m_oMembershipList.GetUniqueSerialNumber();		
+		//m_nCurrentSerialNumber = m_oMembershipList.GetUniqueSerialNumber();		
 		m_oLogger = loggerObject;
 		//m_oLogger.Info(new String("My unique id is : " + m_sUniqueId));
 		//m_sLeaderId = new String();
@@ -49,7 +55,7 @@ public class Election {
 	{
 		m_nSentElectionMessages = 0;
 		m_oLogger.Info(new String("Starting Election now !"));
-		m_oLogger.Info(new String("My serial number : " + String.valueOf(m_nCurrentSerialNumber)));
+		m_oLogger.Info(new String("My serial number : " + String.valueOf(m_nUniqueSerialNumber)));
 		SendElectionMessages();
 	}
 	
@@ -64,7 +70,7 @@ public class Election {
 		{
 			int Sno = (Integer) itSno.next();
 			m_oLogger.Info(new String("Checking Sno : " + String.valueOf(Sno)));
-			if( Sno < m_nCurrentSerialNumber)
+			if( Sno < m_nUniqueSerialNumber)
 			{
 				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 				if(Commons.SUCCESS == ProxyTemp.Initialize(itIP.next().toString(),m_nServicePortForProxys,m_oLogger))

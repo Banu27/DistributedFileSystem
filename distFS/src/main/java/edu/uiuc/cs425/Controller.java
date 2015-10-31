@@ -171,7 +171,10 @@ public class Controller {
 		//Introducer always comes up with serialNumber 0
 		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
 		{
+			m_oLogger.Info(new String("Adding self as introducer and leader with Sno 0"));
+			//If recover from checkpoint, set new leader in election. Don't reset serial number
 			m_oMember.AddSelf(0);
+			m_oElection.SetSerialNumber(0);
 			m_oElection.SetLeader(m_oMember.UniqueId());
 			RecoverFromCheckPoint();
 		}
@@ -205,6 +208,7 @@ public class Controller {
 			try {
 				int serialNumber = proxy.JoinGroup();
 				m_oMember.AddSelf(serialNumber);
+				m_oElection.SetSerialNumber(serialNumber);
 				m_oElection.SetLeader(proxy.GetLeaderId());
 			} catch (TException e2) {
 				// TODO Auto-generated catch block
