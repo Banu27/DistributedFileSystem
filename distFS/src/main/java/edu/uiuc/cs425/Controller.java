@@ -123,7 +123,7 @@ public class Controller {
 	{
 		if( m_sNodeType.equals(Commons.NODE_INTROCUDER))
 		{
-			m_oCommServ.StartIntroService(m_oConfig.IntroducerPort());
+			m_oCommServ.StartIntroService(m_oConfig.CmdPort());
 		}
 		// bring up the heartbeat receiver
 		m_oCommServ.StartHeartBeatRecvr();
@@ -171,7 +171,7 @@ public class Controller {
 			CommandIfaceProxy proxy = new CommandIfaceProxy();
 			int counter = 0;
 			// continous pinging for introducer to connect
-			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.IntroducerPort(), m_oLogger))
+			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.CmdPort(), m_oLogger))
 			{
 				if( counter++ > 100) 
 				{

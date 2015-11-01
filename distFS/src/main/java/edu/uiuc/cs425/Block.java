@@ -3,14 +3,17 @@ package edu.uiuc.cs425;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Block {
-	private int 		nSize;
-	private String 		sBlockID;
-	private String 		sFilePath;
+	public int 			nSize;
+	public String 		sBlockID;
+	public String 		sFilePath;
 	
 	public Block(int size, String sID, String path)
 	{
@@ -19,13 +22,14 @@ public class Block {
 		sFilePath       = path;
 	}
 	
-	public int AddBlockData(byte[] data)
+	public int AddBlockData(ByteBuffer data)
 	{
 		FileOutputStream fos;
 		try {
 			fos = new FileOutputStream(sFilePath);
-			fos.write(data);
-			fos.close();
+			WritableByteChannel channel = Channels.newChannel(fos);
+			channel.write(data);
+			channel.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -38,10 +42,11 @@ public class Block {
 		return Commons.SUCCESS;
 	}
 	
-	public byte[] GetBuffer() throws IOException
+	public ByteBuffer GetBuffer() throws IOException
 	{
 		Path path = Paths.get(sFilePath);
 		byte[] data = Files.readAllBytes(path);
-		return data;
+		ByteBuffer buf = ByteBuffer.wrap(data);
+		return buf;
 	}
 }

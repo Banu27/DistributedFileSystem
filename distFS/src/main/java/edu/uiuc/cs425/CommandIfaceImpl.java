@@ -43,4 +43,10 @@ public class CommandIfaceImpl implements Iface {
 		
 	}
 
+
+	public void AddBlock(int size, String blockID, ByteBuffer payload, boolean replicate) throws TException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

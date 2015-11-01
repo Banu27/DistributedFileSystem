@@ -66,4 +66,11 @@ public class CommandIfaceProxy implements Iface {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+
+	public void AddBlock(int size, String blockID, ByteBuffer payload, boolean replicate) throws TException {
+		// TODO Auto-generated method stub
+		
+	}
 }

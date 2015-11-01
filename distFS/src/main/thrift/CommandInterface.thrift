@@ -7,5 +7,6 @@ service CommandInterface{
    binary GetMembershipList();
    void ReceiveElectionMessage();
    void ReceiveCoordinationMessage();
+   void AddBlock(int size, string blockID, binary payload, bool replicate);
 }
 
