@@ -168,11 +168,8 @@ public class Controller {
 		{
 			CommandIfaceProxy proxy = new CommandIfaceProxy();
 			int counter = 0;
-<<<<<<< HEAD
-			// continous pinging for introducer to connect
-=======
+
 			// continuous pinging for introducer to connect
->>>>>>> 6ce94bae3391147cebde59e7102f1be4f7be185b
 			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.CmdPort(), m_oLogger))
 			{
 				if( counter++ > 100) 

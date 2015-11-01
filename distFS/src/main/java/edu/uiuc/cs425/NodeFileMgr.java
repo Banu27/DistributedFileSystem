@@ -75,15 +75,15 @@ public class NodeFileMgr implements Runnable {
 		if(replicate)
 		{
 			// get ips from membership list
-			Vector<String> sIPs = oMemberList.GetIPList();
-	        // remove self from sIPs
-			sIPs.remove(sMyIP);
-			Set<Integer> rands = Commons.RandomK(Math.min(2, sIPs.size()),sIPs.size(),oMemberList.GetMyLocalTime());
+			ArrayList<String> vUniqueIds = oMemberList.GetMemberIds();
+			String myID = oMemberList.UniqueId();
+			vUniqueIds.remove(myID);
+			Set<Integer> rands = Commons.RandomK(Math.min(2, vUniqueIds.size()),vUniqueIds.size(),oMemberList.GetMyLocalTime());
 			int failcount = 0;
 			for (Integer i : rands)
 			{
 				CommandIfaceProxy proxy = new CommandIfaceProxy();
-				proxy.Initialize(sIPs.get(i), oAccesor.CmdPort(), oLogger);
+				proxy.Initialize(oMemberList.GetIP(vUniqueIds.get(i)), oAccesor.CmdPort(), oLogger);
 				try {
 					proxy.AddBlock(block.nSize, block.sBlockID, block.GetBuffer(), false);
 				} catch (TException e) {
@@ -151,7 +151,7 @@ public class NodeFileMgr implements Runnable {
 		}
 		while(true)
 		{
-			if(DNTable.size() > 0 && oElection.isMasterAlive())
+			if(DNTable.size() > 0 && oElection.IsMasterAlive())
 			{
 				BlockReportProxy proxy = new BlockReportProxy();
 				// TODO: get current leader from the election obj

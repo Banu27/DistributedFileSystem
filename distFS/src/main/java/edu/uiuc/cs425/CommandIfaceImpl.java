@@ -42,9 +42,9 @@ public class CommandIfaceImpl implements Iface {
 		return m_oIntroObj.GetMembershipList();
 	}
 	
-	public int ReceiveElectionMessage() throws TException {
+	public void ReceiveElectionMessage() throws TException {
 		
-		return m_oElection.ReceiveElectionMessage();		
+		m_oElection.ReceiveElectionMessage();		
 	}
 	
 	public void ReceiveCoordinationMessage(String leaderId) throws TException {
@@ -52,14 +52,10 @@ public class CommandIfaceImpl implements Iface {
 	}
 	
 
-	public void ReceiveCoordinationMessage() throws TException {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
 
 	public void AddBlock(int size, String blockID, ByteBuffer payload, boolean replicate) throws TException {
-		// TODO Auto-generated method stub
 		
 	}
 

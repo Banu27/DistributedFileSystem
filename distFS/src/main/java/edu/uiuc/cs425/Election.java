@@ -75,7 +75,8 @@ public class Election {
 				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 				if(Commons.SUCCESS == ProxyTemp.Initialize(mentry.getValue().toString(),m_nServicePortForProxys,m_oLogger))
 				{	try {
-						if(Commons.SUCCESS  == ProxyTemp.ReceiveElectionMessage())
+							ProxyTemp.ReceiveElectionMessage(); //if this throws exception, the next line
+																// wont be executed
 							m_nSentElectionMessages ++;
 					} catch (TException e) {
 						// TODO Auto-generated catch block
@@ -120,9 +121,8 @@ public class Election {
 		m_sLeaderId = leaderId;
 	}
 		
-	public int ReceiveElectionMessage()
+	public void ReceiveElectionMessage()
 	{
 		SendElectionMessages();
-		return Commons.SUCCESS;
 	}
 }

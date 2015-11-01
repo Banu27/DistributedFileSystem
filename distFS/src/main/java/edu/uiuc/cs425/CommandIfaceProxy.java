@@ -61,8 +61,8 @@ public class CommandIfaceProxy implements Iface {
 		transport.close();
 	}
 	
-	public int ReceiveElectionMessage() throws TException {
-		return m_oClient.ReceiveElectionMessage();		
+	public void ReceiveElectionMessage() throws TException {
+		 m_oClient.ReceiveElectionMessage();		
 	}
 	
 	public void ReceiveCoordinationMessage(String leaderId) throws TException {
@@ -73,7 +73,5 @@ public class CommandIfaceProxy implements Iface {
 
 
 	public void AddBlock(int size, String blockID, ByteBuffer payload, boolean replicate) throws TException {
-		// TODO Auto-generated method stub
-		
 	}
 }
