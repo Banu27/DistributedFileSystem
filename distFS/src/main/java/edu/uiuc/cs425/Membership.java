@@ -45,13 +45,18 @@ public class Membership implements Runnable{
 	private int											m_nFailChk;
 	private PrintWriter								    m_oWriter;
 	private ConfigAccessor 								m_oAccessor;
-	private String										m_sIntroducerIP;
-	
+	private	Election									m_oElection;
 	
 	public String UniqueId()
 	{
 		return m_sUniqueId;
 	}
+	
+	public void setElectionObject(Election electionObject)
+	{
+		m_oElection = electionObject;
+	}
+	
 	
 	public int Initialize(ConfigAccessor oAccessor, Logger logger, String introducerIP)
 	{
@@ -64,7 +69,6 @@ public class Membership implements Runnable{
 		m_oLockW = m_oReadWriteLock.writeLock();
 		m_nTfail = m_oAccessor.FailureInterval();
 		m_oLogger = logger;
-		m_sIntroducerIP = introducerIP;
 		
 		try {
 			m_sIP  = InetAddress.getLocalHost().getHostAddress();
@@ -162,7 +166,7 @@ public class Membership implements Runnable{
 				{
 					matchedMember.setAsLeft();
 					m_oLogger.Info(new String("IMPORTANT : " + matchedMember.GetUniqueId() + " has left"));
-					matchedMember.ResetLocalTime(GetMyLocalTime());
+					//matchedMember.ResetLocalTime(GetMyLocalTime());
 				}
 				if(!matchedMember.HasLeft() 
 						&& member.getHeartbeatCounter() > matchedMember.GetHeartbeatCounter())
@@ -207,6 +211,7 @@ public class Membership implements Runnable{
 				m_oHmap.get(vMembers.get(i)).Print();
 		}
 		m_oLockR.unlock();
+		System.out.println("Current Leader Id : " + m_oElection.GetLeaderId());
 		System.out.println("=============================");
 	}
     
@@ -274,14 +279,18 @@ public class Membership implements Runnable{
 		        	sIps.add(memberStruct.GetIP());
 					if((memberStruct.IsSuspect() || memberStruct.HasLeft()) 
 							&& ((GetMyLocalTime() - memberStruct.GetLocalTime()) > 2*m_nTfail))
-					{	 
-						m_oLockW.lock();
+					{	
 						m_oLogger.Info(new String("IMPORTANT : Removing node : " + memberStruct.GetIP())); //UniqueId instead?
-						if(memberStruct.GetIP().equals(m_sIntroducerIP))
+						m_oLogger.Info(new String("Unique id of failed node : " + memberStruct.GetUniqueId()));
+						m_oLogger.Info(new String("Leader id : " + m_oElection.GetLeaderId()));
+						if(memberStruct.GetUniqueId().equals(m_oElection.GetLeaderId()))
 						{
+							m_oLogger.Info(new String("Starting new election, leader failure detected"));
+							m_oElection.StartElection();
 							//Send a message to election Object????? and start election! Call from here??
-							
+						
 						}
+						m_oLockW.lock();
 						iterator.remove();
 						m_oLockW.unlock();
 					}
@@ -346,34 +355,19 @@ public class Membership implements Runnable{
 	 }
 	 
 	 //Read lock
-	 public Vector<Integer> GetSNoList()
+	 public HashMap<Integer,String> GetSNoListAndIPList()
 	 {
-		 Vector<Integer> SnoList = new Vector<Integer>();
+		 HashMap<Integer, String> hmap = new HashMap<Integer, String>();
 		 m_oLockR.lock();
 		 Set<Entry<String, MembershipListStruct>> set = m_oHmap.entrySet();
 		 Iterator<Entry<String, MembershipListStruct>> iterator = set.iterator();
 		 while(iterator.hasNext()) {
 	         Map.Entry mentry = (Map.Entry)iterator.next();
 	         MembershipListStruct memberStruct = (MembershipListStruct) mentry.getValue(); //m_oHmap.get(mentry.getKey());
-	         SnoList.add(memberStruct.GetUniqueSerialNumber());
+	         hmap.put(memberStruct.GetUniqueSerialNumber(),memberStruct.GetIP());
 	     }
 		 m_oLockR.unlock();
-		 return SnoList;
-	 }
-	 
-	 public Vector<String> GetIPList()
-	 {
-		 Vector<String> IPList = new Vector<String>();
-		 m_oLockR.lock();
-		 Set<Entry<String, MembershipListStruct>> set = m_oHmap.entrySet();
-		 Iterator<Entry<String, MembershipListStruct>> iterator = set.iterator();
-		 while(iterator.hasNext()) {
-	         Map.Entry mentry = (Map.Entry)iterator.next();
-	         MembershipListStruct memberStruct = (MembershipListStruct) mentry.getValue(); //m_oHmap.get(mentry.getKey());
-	         IPList.add(memberStruct.GetIP());
-	     }
-		 m_oLockR.unlock();
-		 return IPList;
+		 return hmap;
 	 }
 	 
 }

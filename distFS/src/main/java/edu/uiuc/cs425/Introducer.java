@@ -11,14 +11,21 @@ public class Introducer {
 
 	private Membership 		m_oMembershipObject; //The membership object of the introducer
 	private Logger 			m_oLogger;
-	private int 			m_nSerialNumber;
+	private int				m_nSerialNumber;
+	private Election		m_oElection;
 	
-	public Introducer(Membership member,Logger oLogger)
+	public Introducer(Membership member,Logger oLogger, Election election)
 	{
 		m_oLogger = oLogger;
 		m_oMembershipObject = member;
-		m_nSerialNumber = 0;
+		m_nSerialNumber = 1;
 		m_oLogger.Info(new String("Introducer is up"));
+		m_oElection = election;
+	}
+		
+	public String GetLeaderId() 
+	{
+		return m_oElection.GetLeaderId();
 	}
 	
 	public int JoinGroup() throws TException {
@@ -27,7 +34,7 @@ public class Introducer {
 		synchronized (this) {
 			m_nSerialNumber = m_nSerialNumber + 1;	
 		}
-		m_oLogger.Info(new String("New node has joined"));
+		m_oLogger.Info(new String("New node has joined with serial number : " + String.valueOf(m_nSerialNumber)));
 		return m_nSerialNumber;//Commons.SUCCESS;
 	}
 

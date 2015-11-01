@@ -45,6 +45,10 @@ public class CommandIfaceProxy implements Iface {
 		m_oLogger.Info(new String("Joining Group"));
 		return m_oClient.JoinGroup();
 	}
+	
+	public String GetLeaderId() throws TException{
+		return m_oClient.GetLeaderId();
+	}
 
 	public ByteBuffer GetMembershipList() throws TException {
 		// TODO Auto-generated method stub
@@ -56,15 +60,14 @@ public class CommandIfaceProxy implements Iface {
 	{
 		transport.close();
 	}
-
-	public void ReceiveElectionMessage() throws TException {
-		// TODO Auto-generated method stub
-		
+	
+	public int ReceiveElectionMessage() throws TException {
+		return m_oClient.ReceiveElectionMessage();		
 	}
-
-	public void ReceiveCoordinationMessage() throws TException {
-		// TODO Auto-generated method stub
+	
+	public void ReceiveCoordinationMessage(String leaderId) throws TException {
 		
+		m_oClient.ReceiveCoordinationMessage(leaderId);
 	}
 
 

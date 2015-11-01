@@ -1,65 +1,128 @@
 package edu.uiuc.cs425;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+
+import org.apache.thrift.TException;
+
 import java.util.Map.Entry;
 
 public class Election {
 
+	private enum 			m_enumState { PROGRESS, LEADERALIVE};
+	private m_enumState		m_eState;
 	private Membership 		m_oMembershipList;
-	private int				m_nCurrentSerialNumber;
+	private int				m_nUniqueSerialNumber;
 	private Logger			m_oLogger;
+	private int				m_nSentElectionMessages;
+	private String			m_sLeaderId;
+	private int				m_nServicePortForProxys;
 	
-	public boolean isMasterAlive()
+	public boolean IsMasterAlive()
 	{
 		return true;
 	}
 	
-	public void Initialize(Membership memberObject, Logger loggerObject) //References from controller
+	public void SetSerialNumber(int serialNumber)
+	{
+		m_nUniqueSerialNumber = serialNumber;
+		m_oLogger.Info(new String("Unique serial number set as : " + String.valueOf(m_nUniqueSerialNumber)));
+	}
+	
+	public void SetLeader(String leaderId)
+	{
+		m_sLeaderId = leaderId;
+	}
+		
+	public String GetLeaderId()
+	{
+		return m_sLeaderId;
+	}
+	
+	public void Initialize(Membership memberObject, Logger loggerObject, int servicePort) //References from controller
 	{
 		//Initialize m_oMembershipList
 		m_oMembershipList = memberObject;
-		m_nCurrentSerialNumber = m_oMembershipList.GetUniqueSerialNumber();		
 		m_oLogger = loggerObject;
+		m_nServicePortForProxys = servicePort;
 	}
 	
-	public void sendElectionMessages()
+	public void StartElection()
 	{
-		Vector<Integer> SnoList = m_oMembershipList.GetSNoList();
-		Vector<String> IPList = m_oMembershipList.GetIPList();
+		m_nSentElectionMessages = 0;
+		m_eState = m_enumState.PROGRESS;
+		m_oLogger.Info(new String("Starting Election now !"));
+		m_oLogger.Info(new String("My serial number : " + String.valueOf(m_nUniqueSerialNumber)));
+		SendElectionMessages();
+	}
+	
+	public void SendElectionMessages()
+	{
+		HashMap<Integer,String> SnoListAndIPList = m_oMembershipList.GetSNoListAndIPList();
 		
-		Iterator itSno = SnoList.iterator();
-		Iterator itIP = IPList.iterator();
-		while(itSno.hasNext() && itIP.hasNext())
-		{
-			if( (Integer) itSno.next() < m_nCurrentSerialNumber)
+		Set<Entry<Integer, String>> set = SnoListAndIPList.entrySet();
+		Iterator<Entry<Integer,String>> iterator = set.iterator();
+		while(iterator.hasNext()) {
+	         Map.Entry mentry = (Map.Entry)iterator.next(); 
+			int Sno = (Integer) mentry.getKey();
+			m_oLogger.Info(new String("Checking Sno : " + String.valueOf(Sno)));
+			if( Sno < m_nUniqueSerialNumber)
 			{
-				//itIP.next().toString() - This is the IP. 
-				//Create a connection and send the Election message
-				//proxy.sendElectionMessages();
+				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+				if(Commons.SUCCESS == ProxyTemp.Initialize(mentry.getValue().toString(),m_nServicePortForProxys,m_oLogger))
+				{	try {
+						if(Commons.SUCCESS  == ProxyTemp.ReceiveElectionMessage())
+							m_nSentElectionMessages ++;
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
+		}
+		if(m_nSentElectionMessages == 0)
+		{
+			m_oLogger.Info(new String("No election messages were sent, I AM THE LEADER"));
+			m_sLeaderId = m_oMembershipList.UniqueId();
+			m_oLogger.Info(new String("My leader id is : " + m_sLeaderId));
+			SendCoordinationMessage();
 		}
 	}
 	
-	public void sendCoordinationMessage()
+	public void SendCoordinationMessage()
 	{
-		Vector<String> IPList = m_oMembershipList.GetIPList();
+		ArrayList<String> IPList = m_oMembershipList.GetMemberIds();
 		
-		Iterator it = IPList.iterator();
+		Iterator<String> it = IPList.iterator();
 		while(it.hasNext())
 		{
-			 String IP = it.next().toString();
-			{
-				//Create a connection and send Coordination Message
-				//proxy.sendCoordinationMessage();
+			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembershipList.GetIP(it.next().toString()),m_nServicePortForProxys,m_oLogger))
+			{	
+				try {
+						ProxyTemp.ReceiveCoordinationMessage(m_sLeaderId);
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 			}
+
 		}
+		
 	}
 	
-	public void receiveElectionMessage()
+	public void ReceiveCoordinationMessage(String leaderId)
 	{
-		sendElectionMessages();
+		m_sLeaderId = leaderId;
+	}
+		
+	public int ReceiveElectionMessage()
+	{
+		SendElectionMessages();
+		return Commons.SUCCESS;
 	}
 }

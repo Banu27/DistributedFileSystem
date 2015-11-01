@@ -23,12 +23,10 @@ public class Controller {
 	private Thread          m_HBThread;
 	private Thread 			m_FailDetThread;
 	private Logger 			m_oLogger;
-	private static final String sLogPath = "/Users/anirudhnair/mp2/log/log.txt";
 	private Scanner 		m_oUserInput;
 	private String 			introIP;
 	private String 			hostIP; //What is this? - Banu
 	private Election		m_oElection;
-	
 	
 	public Controller()
 	{
@@ -82,31 +80,20 @@ public class Controller {
 		m_oMember.Initialize(m_oConfig, m_oLogger, introIP);
 		
 		//Initializing Election object
-		m_oElection.Initialize(m_oMember,m_oLogger);
+		m_oElection.Initialize(m_oMember,m_oLogger,m_oConfig.CmdPort());
+		
+		m_oMember.setElectionObject(m_oElection);
 		
 		//CommServer object initializing here
-		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
-		{
-			//Set membership obj in introducer
-			
-			m_oIntroducer = new Introducer(m_oMember,m_oLogger);
-
-			if( Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), 
-					m_oMember, m_oIntroducer,m_oLogger) )
-			{
-				m_oLogger.Error("Failed to initialize the communication server");
-				return Commons.FAILURE;
-			}
-		} else 
-		{
-			if( Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), 
-					m_oMember, m_oLogger))
-			{
-				m_oLogger.Error("Failed to initialize the communication server");
-				return Commons.FAILURE;
-			}
-		}
+		//ToDo - Use CommServer here for all and not just intoducer
 		
+		m_oIntroducer = new Introducer(m_oMember, m_oLogger, m_oElection);
+		
+		if(Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), m_oMember, m_oIntroducer, m_oLogger, m_oElection))
+		{
+			m_oLogger.Error("Failed to initialize the communication server");
+			return Commons.FAILURE;
+		}		
 		
 		//Intializing Heartbeat object
 		if( Commons.FAILURE == m_oHeartbeat.Initialize(m_oMember, m_oConfig, m_oLogger))
@@ -118,12 +105,13 @@ public class Controller {
 	}
 	
 
-	
+	//Starting the thrift and UDP servers here
 	public void StartAllServices()
 	{
 		if( m_sNodeType.equals(Commons.NODE_INTROCUDER))
 		{
-			m_oCommServ.StartIntroService(m_oConfig.CmdPort());
+			m_oCommServ.StartIntroService(m_oConfig.CmdPort()); //Giving introducer port here
+
 		}
 		// bring up the heartbeat receiver
 		m_oCommServ.StartHeartBeatRecvr();
@@ -165,12 +153,26 @@ public class Controller {
 	
 	
 	public int IntroduceSelf()
-	{
+	{	
+		//Introducer always comes up with serialNumber 0
+		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
+		{
+			m_oLogger.Info(new String("Adding self as introducer and leader with Sno 0"));
+			//If recover from checkpoint, set new leader in election. Don't reset serial number
+			m_oMember.AddSelf(0);
+			m_oElection.SetSerialNumber(0);
+			m_oElection.SetLeader(m_oMember.UniqueId());
+			RecoverFromCheckPoint();
+		}
 		if(m_sNodeType.equals(Commons.NODE_PARTICIPANT))
 		{
 			CommandIfaceProxy proxy = new CommandIfaceProxy();
 			int counter = 0;
+<<<<<<< HEAD
 			// continous pinging for introducer to connect
+=======
+			// continuous pinging for introducer to connect
+>>>>>>> 6ce94bae3391147cebde59e7102f1be4f7be185b
 			while(Commons.FAILURE == proxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.CmdPort(), m_oLogger))
 			{
 				if( counter++ > 100) 
@@ -195,7 +197,10 @@ public class Controller {
 			
 			try {
 				int serialNumber = proxy.JoinGroup();
-				m_oMember.AddSelf(serialNumber);			
+				m_oLogger.Info(new String("Received serial number from introdcr : " + String.valueOf(serialNumber)));
+				m_oMember.AddSelf(serialNumber);
+				m_oElection.SetSerialNumber(serialNumber);
+				m_oElection.SetLeader(proxy.GetLeaderId());
 			} catch (TException e2) {
 				// TODO Auto-generated catch block
 				m_oLogger.Error(m_oLogger.StackTraceToString(e2));
@@ -221,7 +226,6 @@ public class Controller {
 		}
 		
 		// recover from checkpoint
-		RecoverFromCheckPoint();
 		return Commons.SUCCESS;
 	}
 	
@@ -236,6 +240,7 @@ public class Controller {
 				String sInput = m_oUserInput.nextLine();
 				if(sInput.equalsIgnoreCase("yes"))
 				{
+					//UPADATE LEADER!!!
 					try {
 						BufferedReader brCP = new BufferedReader(new FileReader(m_oConfig.GetCPPath()));
 						String text = brCP.readLine();
