@@ -1,5 +1,7 @@
 package edu.uiuc.cs425;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -11,6 +13,8 @@ import java.util.Map.Entry;
 
 public class Election {
 
+	private enum 			m_enumState { PROGRESS, LEADERALIVE};
+	private m_enumState		m_eState;
 	private Membership 		m_oMembershipList;
 	private int				m_nUniqueSerialNumber;
 	private Logger			m_oLogger;
@@ -27,7 +31,6 @@ public class Election {
 	{
 		m_nUniqueSerialNumber = serialNumber;
 		m_oLogger.Info(new String("Unique serial number set as : " + String.valueOf(m_nUniqueSerialNumber)));
-		
 	}
 	
 	public void SetLeader(String leaderId)
@@ -40,21 +43,18 @@ public class Election {
 		return m_sLeaderId;
 	}
 	
-	
 	public void Initialize(Membership memberObject, Logger loggerObject, int servicePort) //References from controller
 	{
 		//Initialize m_oMembershipList
 		m_oMembershipList = memberObject;
-		//m_nCurrentSerialNumber = m_oMembershipList.GetUniqueSerialNumber();		
 		m_oLogger = loggerObject;
-		//m_oLogger.Info(new String("My unique id is : " + m_sUniqueId));
-		//m_sLeaderId = new String();
 		m_nServicePortForProxys = servicePort;
 	}
 	
 	public void StartElection()
 	{
 		m_nSentElectionMessages = 0;
+		m_eState = m_enumState.PROGRESS;
 		m_oLogger.Info(new String("Starting Election now !"));
 		m_oLogger.Info(new String("My serial number : " + String.valueOf(m_nUniqueSerialNumber)));
 		SendElectionMessages();
@@ -62,19 +62,18 @@ public class Election {
 	
 	public void SendElectionMessages()
 	{
-		Vector<Integer> SnoList = m_oMembershipList.GetSNoList();
-		Vector<String> IPList = m_oMembershipList.GetIPList();
+		HashMap<Integer,String> SnoListAndIPList = m_oMembershipList.GetSNoListAndIPList();
 		
-		Iterator itSno = SnoList.iterator();
-		Iterator itIP = IPList.iterator();
-		while(itSno.hasNext() && itIP.hasNext())
-		{
-			int Sno = (Integer) itSno.next();
+		Set<Entry<Integer, String>> set = SnoListAndIPList.entrySet();
+		Iterator<Entry<Integer,String>> iterator = set.iterator();
+		while(iterator.hasNext()) {
+	         Map.Entry mentry = (Map.Entry)iterator.next(); 
+			int Sno = (Integer) mentry.getKey();
 			m_oLogger.Info(new String("Checking Sno : " + String.valueOf(Sno)));
 			if( Sno < m_nUniqueSerialNumber)
 			{
 				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-				if(Commons.SUCCESS == ProxyTemp.Initialize(itIP.next().toString(),m_nServicePortForProxys,m_oLogger))
+				if(Commons.SUCCESS == ProxyTemp.Initialize(mentry.getValue().toString(),m_nServicePortForProxys,m_oLogger))
 				{	try {
 						if(Commons.SUCCESS  == ProxyTemp.ReceiveElectionMessage())
 							m_nSentElectionMessages ++;
@@ -96,13 +95,13 @@ public class Election {
 	
 	public void SendCoordinationMessage()
 	{
-		Vector<String> IPList = m_oMembershipList.GetIPList();
+		ArrayList<String> IPList = m_oMembershipList.GetMemberIds();
 		
 		Iterator<String> it = IPList.iterator();
 		while(it.hasNext())
 		{
 			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-			if(Commons.SUCCESS == ProxyTemp.Initialize(it.next().toString(),m_nServicePortForProxys,m_oLogger))
+			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembershipList.GetIP(it.next().toString()),m_nServicePortForProxys,m_oLogger))
 			{	
 				try {
 						ProxyTemp.ReceiveCoordinationMessage(m_sLeaderId);

@@ -355,34 +355,19 @@ public class Membership implements Runnable{
 	 }
 	 
 	 //Read lock
-	 public Vector<Integer> GetSNoList()
+	 public HashMap<Integer,String> GetSNoListAndIPList()
 	 {
-		 Vector<Integer> SnoList = new Vector<Integer>();
+		 HashMap<Integer, String> hmap = new HashMap<Integer, String>();
 		 m_oLockR.lock();
 		 Set<Entry<String, MembershipListStruct>> set = m_oHmap.entrySet();
 		 Iterator<Entry<String, MembershipListStruct>> iterator = set.iterator();
 		 while(iterator.hasNext()) {
 	         Map.Entry mentry = (Map.Entry)iterator.next();
 	         MembershipListStruct memberStruct = (MembershipListStruct) mentry.getValue(); //m_oHmap.get(mentry.getKey());
-	         SnoList.add(memberStruct.GetUniqueSerialNumber());
+	         hmap.put(memberStruct.GetUniqueSerialNumber(),memberStruct.GetIP());
 	     }
 		 m_oLockR.unlock();
-		 return SnoList;
-	 }
-	 
-	 public Vector<String> GetIPList()
-	 {
-		 Vector<String> IPList = new Vector<String>();
-		 m_oLockR.lock();
-		 Set<Entry<String, MembershipListStruct>> set = m_oHmap.entrySet();
-		 Iterator<Entry<String, MembershipListStruct>> iterator = set.iterator();
-		 while(iterator.hasNext()) {
-	         Map.Entry mentry = (Map.Entry)iterator.next();
-	         MembershipListStruct memberStruct = (MembershipListStruct) mentry.getValue(); //m_oHmap.get(mentry.getKey());
-	         IPList.add(memberStruct.GetIP());
-	     }
-		 m_oLockR.unlock();
-		 return IPList;
+		 return hmap;
 	 }
 	 
 }
