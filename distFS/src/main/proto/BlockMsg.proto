@@ -1,0 +1,8 @@
+package buffer;
+
+option java_package = "edu.uiuc.cs425";
+
+message BlockReport {
+    required string nodeID = 1; 
+	repeated string sBlockIDs = 2;
+}
