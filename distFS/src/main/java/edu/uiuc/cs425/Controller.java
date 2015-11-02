@@ -188,7 +188,6 @@ public class Controller {
 					return Commons.FAILURE;
 				}
 			}
-
 			// checkpointing will change this part of the logic
 			//Added call to JoinGroup for getting serialNumbers
 			
@@ -197,10 +196,33 @@ public class Controller {
 				m_oLogger.Info(new String("Received serial number from introdcr : " + String.valueOf(serialNumber)));
 				m_oMember.AddSelf(serialNumber);
 				m_oElection.SetSerialNumber(serialNumber);
-				m_oElection.SetLeader(proxy.GetLeaderId());
 			} catch (TException e2) {
 				// TODO Auto-generated catch block
 				m_oLogger.Error(m_oLogger.StackTraceToString(e2));
+			}
+			int leaderCounter = 0;
+			try {
+				while(Commons.FAILURE == proxy.IsLeaderAlive())
+				{
+					if( leaderCounter++ > 100) 
+					{
+						m_oLogger.Error("Failed to receive leader. Exiting after 100 tries");
+						return Commons.FAILURE;
+					}
+					
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					m_oLogger.Warning(new String("Leader not alive. Trying in 5 secs"));			
+				}
+				m_oElection.SetLeader(proxy.GetLeaderId());
+				
+			} catch (TException e3) {
+				// TODO Auto-generated catch block
+				e3.printStackTrace();
 			}
 			
 			ByteBuffer buf;
@@ -237,18 +259,53 @@ public class Controller {
 				String sInput = m_oUserInput.nextLine();
 				if(sInput.equalsIgnoreCase("yes"))
 				{
-					//UPADATE LEADER!!!
 					try {
 						BufferedReader brCP = new BufferedReader(new FileReader(m_oConfig.GetCPPath()));
 						String text = brCP.readLine();
 						String[] strArray = text.split(",");
 						m_oHeartbeat.SendHB(strArray);
+						for (String sIP: strArray) {  
+							CommandIfaceProxy proxy = new CommandIfaceProxy();
+							if(Commons.SUCCESS == proxy.Initialize(sIP, m_oConfig.CmdPort(), m_oLogger))
+							{
+								int counter = 0;
+								while(Commons.FAILURE == proxy.IsLeaderAlive())
+								{
+									if( counter++ > 100) 
+									{
+										m_oLogger.Error("Failed to receive leader from selected node.");
+										//Breaking from this while loop
+										break;
+									}
+									
+									try {
+										Thread.sleep(5000);
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									m_oLogger.Warning("Leader not alive now. Trying in 5 secs");									
+								}
+								m_oElection.SetLeader(proxy.GetLeaderId());
+								//Breaking from for loop
+								break;
+							}
+								
+
+							
+						}
+
+							
+						
 					} catch (FileNotFoundException e) {
 						m_oLogger.Error(m_oLogger.StackTraceToString(e));
 						return Commons.FAILURE;
 					} catch (IOException e) {
 						m_oLogger.Error(m_oLogger.StackTraceToString(e));
 						return Commons.FAILURE;
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				} else if(sInput.equalsIgnoreCase("no"))
 				{

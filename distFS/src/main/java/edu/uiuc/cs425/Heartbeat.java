@@ -78,8 +78,9 @@ public class Heartbeat implements Runnable {
 	public void SendHB(String [] sIPs)
 	{
 		byte[] buf;
+		String leaderId;
 		try {
-			buf = m_oMship.GetMemberList();
+			buf = m_oMship.GetMemberList(); //Does this contain only 1 member - introducer??
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

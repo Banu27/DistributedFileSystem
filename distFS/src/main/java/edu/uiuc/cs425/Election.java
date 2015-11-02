@@ -51,10 +51,18 @@ public class Election {
 		m_nServicePortForProxys = servicePort;
 	}
 	
+	public int IsLeaderAlive()
+	{
+		if (m_eState == m_enumState.PROGRESS)
+			return Commons.SUCCESS;
+		return Commons.FAILURE;
+	}
+	
 	public void StartElection()
 	{
 		m_nSentElectionMessages = 0;
 		m_eState = m_enumState.PROGRESS;
+		m_sLeaderId = null;
 		m_oLogger.Info(new String("Starting Election now !"));
 		m_oLogger.Info(new String("My serial number : " + String.valueOf(m_nUniqueSerialNumber)));
 		SendElectionMessages();

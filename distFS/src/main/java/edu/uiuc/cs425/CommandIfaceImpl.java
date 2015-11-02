@@ -34,8 +34,14 @@ public class CommandIfaceImpl implements Iface {
 
 	public String GetLeaderId()
 	{
-		return m_oIntroObj.GetLeaderId();
+		return m_oElection.GetLeaderId();
 	}
+	
+	public int IsLeaderAlive()
+	{
+		return m_oElection.IsLeaderAlive();
+	}
+	
 	
 	public ByteBuffer GetMembershipList() throws TException {
 		// TODO Auto-generated method stub

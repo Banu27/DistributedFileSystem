@@ -62,7 +62,10 @@ public class CommandIfaceProxy implements Iface {
 	}
 	
 	public void ReceiveElectionMessage() throws TException {
-		 m_oClient.ReceiveElectionMessage();		
+		 m_oClient.ReceiveElectionMessage();	
+	}
+	public int IsLeaderAlive() throws TException {
+		return m_oClient.IsLeaderAlive();
 	}
 	
 	public void ReceiveCoordinationMessage(String leaderId) throws TException {
