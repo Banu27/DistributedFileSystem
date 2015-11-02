@@ -76,12 +76,13 @@ public class Election {
 		Set<Entry<Integer, String>> set = SnoListAndIPList.entrySet();
 		Iterator<Entry<Integer,String>> iterator = set.iterator();
 		while(iterator.hasNext()) {
-	         Map.Entry mentry = (Map.Entry)iterator.next(); 
+	        Map.Entry mentry = (Map.Entry)iterator.next(); 
 			int Sno = (Integer) mentry.getKey();
 			m_oLogger.Info(new String("Checking Sno : " + String.valueOf(Sno)));
 			if( Sno < m_nUniqueSerialNumber)
 			{
 				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+				m_oLogger.Info("Trying to initiate connection with " + mentry.getValue().toString() + " at " + String.valueOf(m_nServicePortForProxys));
 				if(Commons.SUCCESS == ProxyTemp.Initialize(mentry.getValue().toString(),m_nServicePortForProxys,m_oLogger))
 				{	try {
 							ProxyTemp.ReceiveElectionMessage(); //if this throws exception, the next line
