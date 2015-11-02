@@ -204,9 +204,9 @@ public class Controller {
 			try {
 				while(Commons.FAILURE == proxy.IsLeaderAlive())
 				{
-					if( leaderCounter++ > 100) 
+					if( leaderCounter++ > 10) 
 					{
-						m_oLogger.Error("Failed to receive leader. Exiting after 100 tries");
+						m_oLogger.Error("Failed to receive leader. Exiting after 10 tries");
 						return Commons.FAILURE;
 					}
 					
@@ -271,7 +271,7 @@ public class Controller {
 								int counter = 0;
 								while(Commons.FAILURE == proxy.IsLeaderAlive())
 								{
-									if( counter++ > 100) 
+									if( counter++ > 10) 
 									{
 										m_oLogger.Error("Failed to receive leader from selected node.");
 										//Breaking from this while loop

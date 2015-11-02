@@ -36,6 +36,7 @@ public class Election {
 	public void SetLeader(String leaderId)
 	{
 		m_sLeaderId = leaderId;
+		m_eState = m_enumState.LEADERALIVE;
 	}
 		
 	public String GetLeaderId()
@@ -53,7 +54,7 @@ public class Election {
 	
 	public int IsLeaderAlive()
 	{
-		if (m_eState == m_enumState.PROGRESS)
+		if (m_eState == m_enumState.LEADERALIVE)
 			return Commons.SUCCESS;
 		return Commons.FAILURE;
 	}
