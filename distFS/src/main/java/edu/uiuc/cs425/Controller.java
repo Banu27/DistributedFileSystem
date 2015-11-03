@@ -108,11 +108,7 @@ public class Controller {
 	//Starting the thrift and UDP servers here
 	public void StartAllServices()
 	{
-		if( m_sNodeType.equals(Commons.NODE_INTROCUDER))
-		{
-			m_oCommServ.StartIntroService(m_oConfig.CmdPort()); //Giving introducer port here
-
-		}
+		m_oCommServ.StartCmdService(m_oConfig.CmdPort()); //Giving introducer port here
 		// bring up the heartbeat receiver
 		m_oCommServ.StartHeartBeatRecvr();
 	}

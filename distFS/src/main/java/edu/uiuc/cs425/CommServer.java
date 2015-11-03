@@ -16,7 +16,7 @@ public class CommServer {
 	
 	private CommandIfaceImpl 		m_oCommandImpl;
 	private HeartBeatReceiver       m_oHBRecvr;
-	private Thread 					m_oIntroServThread;
+	private Thread 					m_oCmdServThread;
 	private Thread 					m_oHBRecvrThread;
 	private Logger					m_oLogger;
 	
@@ -40,15 +40,15 @@ public class CommServer {
 		}
 		m_oHBRecvr.SetMembershipObj(oMember);
 		
-		m_oIntroServThread  = null;
+		m_oCmdServThread  = null;
 		m_oHBRecvrThread    = null;
 		return Commons.SUCCESS;
 	}
 	
 		
-	public void StartIntroService(final int nPort)
+	public void StartCmdService(final int nPort)
 	{
-		m_oIntroServThread = new Thread(new Runnable() {           
+		m_oCmdServThread = new Thread(new Runnable() {           
             public void run() { 
             	try {
             		TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(nPort);
@@ -61,7 +61,7 @@ public class CommServer {
         		return;
         	} 
         });
-		m_oIntroServThread.start();
+		m_oCmdServThread.start();
 	}
 	
 	public void StartHeartBeatRecvr()
@@ -86,7 +86,7 @@ public class CommServer {
 	public void WaitForIntroServiceToStop()
 	{
 		try {
-			m_oIntroServThread.join();
+			m_oCmdServThread.join();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
