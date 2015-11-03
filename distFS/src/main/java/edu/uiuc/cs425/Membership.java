@@ -166,7 +166,7 @@ public class Membership implements Runnable{
 				{
 					matchedMember.setAsLeft();
 					m_oLogger.Info(new String("IMPORTANT : " + matchedMember.GetUniqueId() + " has left"));
-					//matchedMember.ResetLocalTime(GetMyLocalTime());
+					matchedMember.ResetLocalTime(GetMyLocalTime());
 				}
 				if(!matchedMember.HasLeft() 
 						&& member.getHeartbeatCounter() > matchedMember.GetHeartbeatCounter())
@@ -296,7 +296,7 @@ public class Membership implements Runnable{
 					}
 					else
 					{
-						if((GetMyLocalTime() - memberStruct.GetLocalTime()) > m_nTfail)
+						if((GetMyLocalTime() - memberStruct.GetLocalTime()) > m_nTfail && !memberStruct.HasLeft())
 						{
 							m_oLogger.Info(new String("IMPORTANT : Suspected node : " + memberStruct.GetIP()));
 							memberStruct.setAsSuspect();

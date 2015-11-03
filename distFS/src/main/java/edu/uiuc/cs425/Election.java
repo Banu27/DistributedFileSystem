@@ -107,13 +107,14 @@ public class Election {
 	public void SendCoordinationMessage()
 	{
 		ArrayList<String> IPList = m_oMembershipList.GetMemberIds();
-		
+		m_oLogger.Info("Sending coordination messages");
 		Iterator<String> it = IPList.iterator();
 		while(it.hasNext())
 		{
 			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembershipList.GetIP(it.next().toString()),m_nServicePortForProxys,m_oLogger))
 			{	
+				m_oLogger.Info("sending message to " + it.next().toString());
 				try {
 						ProxyTemp.ReceiveCoordinationMessage(m_sLeaderId);
 					} catch (TException e) {
