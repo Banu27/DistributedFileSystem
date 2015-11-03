@@ -303,6 +303,12 @@ public class Membership implements Runnable{
 							memberStruct.setAsSuspect();
 						}
 					}
+					if(memberStruct.IsSuspect())
+					{
+						m_oLogger.Info("The suspected node is : " + memberStruct.GetUniqueId());
+						m_oLogger.Info("The heartbeat count of suspect node is : " + String.valueOf(memberStruct.GetHeartbeatCounter()));
+				
+					}
 				}
 			}
 			//m_oLockW.unlock();
