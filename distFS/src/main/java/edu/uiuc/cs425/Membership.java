@@ -166,7 +166,7 @@ public class Membership implements Runnable{
 					matchedMember.setAsLeft();
 					m_oLogger.Info("IMPORTANT : " + matchedMember.GetUniqueId() + " has left");
 					//WHY DID WE DECIDE TO DO THIS?
-					matchedMember.ResetLocalTime(GetMyLocalTime());
+					//matchedMember.ResetLocalTime(GetMyLocalTime());
 				}
 				if(!matchedMember.HasLeft() 
 						&& incomingMember.getHeartbeatCounter() > matchedMember.GetHeartbeatCounter())
