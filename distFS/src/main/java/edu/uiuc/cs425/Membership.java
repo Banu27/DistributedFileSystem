@@ -320,7 +320,9 @@ public class Membership implements Runnable{
 				try {
 					m_oWriter = new PrintWriter(m_oAccessor.GetCPPath(), "UTF-8");
 					String ipCSV = sIps.toString();
-					m_oWriter.print(ipCSV.substring(1, ipCSV.length() - 1));
+					String ipCSVFinal = ipCSV.substring(1, ipCSV.length() - 1);
+					m_oWriter.print(ipCSVFinal.replaceAll("\\s+",""));
+				 	m_oWriter.close();				
 				} catch (FileNotFoundException e1) {
 					// TODO Auto-generated catch block
 					m_oLogger.Error(m_oLogger.StackTraceToString(e1));
