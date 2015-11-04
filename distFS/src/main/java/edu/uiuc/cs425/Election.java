@@ -44,6 +44,11 @@ public class Election {
 		return m_sLeaderId;
 	}
 	
+	public String GetLeaderIP()
+	{
+		return m_oMembershipList.GetIP(m_sLeaderId);
+	}
+	
 	public void Initialize(Membership memberObject, Logger loggerObject, int servicePort) //References from controller
 	{
 		//Initialize m_oMembershipList

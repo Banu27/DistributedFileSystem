@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-public class BlockReportProxy {
+public class FileReportProxy {
 	
 	private DatagramSocket  m_oSocket;
 	private InetAddress     m_oHost;
@@ -37,7 +37,7 @@ public class BlockReportProxy {
 	}
 	
 	
-	void SendBlockReport(byte[] report) throws IOException
+	void SendFileReport(byte[] report) throws IOException
 	{
 		DatagramPacket packet     = new DatagramPacket(report, report.length, m_oHost, m_Port);
 		m_oSocket.send(packet);

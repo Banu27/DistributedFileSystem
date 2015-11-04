@@ -75,6 +75,11 @@ public class CommandIfaceProxy implements Iface {
 
 
 
-	public void AddBlock(int size, String blockID, ByteBuffer payload, boolean replicate) throws TException {
+	public int AddFile(int size, String fileID, ByteBuffer payload, boolean replicate) throws TException {
+		return m_oClient.AddFile(size, fileID, payload, replicate);
+	}
+
+	public void DeleteFile(String fileID) throws TException {
+		m_oClient.DeleteFile(fileID);
 	}
 }

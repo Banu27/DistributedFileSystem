@@ -10,10 +10,16 @@ public class CommandIfaceImpl implements Iface {
 
 	private Introducer 		m_oIntroObj;
 	private Election  		m_oElection;
+	private NodeFileMgr     m_oNodeMgr;
 	
 	public void SetIntoObj(Introducer oIntroObj)
 	{
 		this.m_oIntroObj = oIntroObj;
+	}
+	
+	public void SetNMObj(NodeFileMgr oNMObj)
+	{
+		this.m_oNodeMgr = oNMObj;
 	}
 	
 	public void setElectionObj(Election oElectionObj)
@@ -28,7 +34,6 @@ public class CommandIfaceImpl implements Iface {
 	}
 	
 	public int JoinGroup() throws TException {
-		// TODO Auto-generated method stub
 		return m_oIntroObj.JoinGroup();
 	}
 
@@ -44,7 +49,6 @@ public class CommandIfaceImpl implements Iface {
 	
 	
 	public ByteBuffer GetMembershipList() throws TException {
-		// TODO Auto-generated method stub
 		return m_oIntroObj.GetMembershipList();
 	}
 	
@@ -59,10 +63,17 @@ public class CommandIfaceImpl implements Iface {
 	
 
 	
+	public int AddFile(int size, String fileID, ByteBuffer payload, boolean replicate) throws TException {
+				
+		// create the SDFS file obj
+		SDFSFile file_ = new SDFSFile(size, fileID, Commons.SDFS_LOC + fileID);
+		file_.AddFileData(payload);
+		// forward the info to the node manager
+		return m_oNodeMgr.AddFile(file_, replicate);
+	}
 
-
-	public void AddBlock(int size, String blockID, ByteBuffer payload, boolean replicate) throws TException {
-		
+	public void DeleteFile(String fileID) throws TException {
+		m_oNodeMgr.DeleteFile(fileID);	
 	}
 
 }

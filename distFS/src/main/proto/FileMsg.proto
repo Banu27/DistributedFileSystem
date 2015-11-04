@@ -2,7 +2,7 @@ package buffer;
 
 option java_package = "edu.uiuc.cs425";
 
-message BlockReport {
+message FileReport {
     required string nodeID = 1; 
-	repeated string sBlockIDs = 2;
+	repeated string sFileIDs = 2;
 }

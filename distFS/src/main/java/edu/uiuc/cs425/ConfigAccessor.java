@@ -17,7 +17,7 @@ import java.io.IOException;
    <Heartbeat port="8192" interval="2000" gossipNodes="3" /> 
    <Failure interval="3000" checkPoint="" />
    <Logger path="" />
-   <BlockReport port="3425" interval="10000" />
+   <FileReport port="3425" interval="10000" />
 </MembershipConfig>
  */
 
@@ -31,8 +31,8 @@ public class ConfigAccessor {
 	private String      m_sLogPath;
 	private String      m_sCPPath;
 	private int			m_nLossRate;
-	private int         m_nBRPort;
-	private int 		m_nBRInterval;
+	private int         m_nFRPort;
+	private int 		m_nFRInterval;
 	
 	public ConfigAccessor()
 	{
@@ -84,14 +84,14 @@ public class ConfigAccessor {
 		return m_sCPPath;
 	}
 	
-	public int GetBRPort()
+	public int GetFRPort()
 	{
-		return m_nBRPort;
+		return m_nFRPort;
 	}
 	
-	public int GetBRInterval()
+	public int GetFRInterval()
 	{
-		return m_nBRInterval;
+		return m_nFRInterval;
 	}
 	
 	public int Initialize(String sXMLFilePath)
@@ -153,11 +153,11 @@ public class ConfigAccessor {
 				Element eElement = (Element) nNode;
 				m_sLogPath  = eElement.getAttribute("path");
 			}
-			else if (nNode.getNodeName() == "BlockReport")
+			else if (nNode.getNodeName() == "FileReport")
 			{
 				Element eElement = (Element) nNode;
-				m_nBRPort  = Integer.parseInt(eElement.getAttribute("port"));
-				m_nBRInterval = Integer.parseInt(eElement.getAttribute("interval"));
+				m_nFRPort  = Integer.parseInt(eElement.getAttribute("port"));
+				m_nFRInterval = Integer.parseInt(eElement.getAttribute("interval"));
 			}
 		}
 		return Commons.SUCCESS;

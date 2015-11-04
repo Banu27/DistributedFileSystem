@@ -7,8 +7,8 @@ service CommandInterface{
    string GetLeaderId();
    binary GetMembershipList();
    void ReceiveElectionMessage();
-   void AddBlock(1:int size, 2:string blockID, 3:binary payload, 4:bool replicate);
-   
+   int AddFile(1:int size, 2:string fileID, 3:binary payload, 4:bool replicate);
+   void DeleteFile(1:string fileID);
    void ReceiveCoordinationMessage(1:string leaderId);
    int IsLeaderAlive();
 }

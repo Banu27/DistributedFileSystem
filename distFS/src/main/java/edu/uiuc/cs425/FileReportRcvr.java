@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Arrays;
 
-public class BlockReportRcvr {
+public class FileReportRcvr {
 	
 	private byte[]  		m_msgBuffer;
 	private DatagramSocket  m_socket;
@@ -14,7 +14,7 @@ public class BlockReportRcvr {
 	private Logger 			m_oLogger;
 	private int				m_nCounter;
 	
-	public BlockReportRcvr() {
+	public FileReportRcvr() {
 		m_msgBuffer = new byte[2048];
 		m_nCounter = 0;
 	}

@@ -10,23 +10,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Block {
-	public int 			nSize;
-	public String 		sBlockID;
-	public String 		sFilePath;
+public class SDFSFile {
+	public int 			m_nSize;
+	public String 		m_sFileID;
+	public String 		m_sFilePath;
 	
-	public Block(int size, String sID, String path)
+	public SDFSFile(int size, String sID, String path)
 	{
-		nSize 			= size;
-		sBlockID        = sID;
-		sFilePath       = path;
+		m_nSize 			= size;
+		m_sFileID        	= sID;
+		m_sFilePath       	= path;
 	}
 	
-	public int AddBlockData(ByteBuffer data)
+	public int AddFileData(ByteBuffer data)
 	{
 		FileOutputStream fos;
 		try {
-			fos = new FileOutputStream(sFilePath);
+			fos = new FileOutputStream(m_sFilePath);
 			WritableByteChannel channel = Channels.newChannel(fos);
 			channel.write(data);
 			channel.close();
@@ -44,7 +44,7 @@ public class Block {
 	
 	public ByteBuffer GetBuffer() throws IOException
 	{
-		Path path = Paths.get(sFilePath);
+		Path path = Paths.get(m_sFilePath);
 		byte[] data = Files.readAllBytes(path);
 		ByteBuffer buf = ByteBuffer.wrap(data);
 		return buf;
