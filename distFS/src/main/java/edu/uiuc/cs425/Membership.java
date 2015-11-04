@@ -139,7 +139,6 @@ public class Membership implements Runnable{
 	    }	      
 		memberListBuilder.addAllMember(memberList);
 		m_oLockR.unlock();
-		//LOG????
 		return memberListBuilder.build();
 		
 	}
@@ -156,22 +155,23 @@ public class Membership implements Runnable{
 		m_oLogger.Info(new String("Merging list")); //Needed?
 		//Write lock 
 		m_oLockW.lock();
-		for(Member member : incomingList.getMemberList())
+		for(Member incomingMember : incomingList.getMemberList())
 		{ 
-			if(m_oHmap.containsKey(member.getUniqueId()))
+			if(m_oHmap.containsKey(incomingMember.getUniqueId()))
 			{
-				MembershipListStruct matchedMember = m_oHmap.get(member.getUniqueId());
+				MembershipListStruct matchedMember = m_oHmap.get(incomingMember.getUniqueId());
 				//> Can never happen for self
-				if(member.getHasLeft())
+				if(incomingMember.getHasLeft())
 				{
 					matchedMember.setAsLeft();
-					m_oLogger.Info(new String("IMPORTANT : " + matchedMember.GetUniqueId() + " has left"));
+					m_oLogger.Info("IMPORTANT : " + matchedMember.GetUniqueId() + " has left");
+					//WHY DID WE DECIDE TO DO THIS?
 					//matchedMember.ResetLocalTime(GetMyLocalTime());
 				}
 				if(!matchedMember.HasLeft() 
-						&& member.getHeartbeatCounter() > matchedMember.GetHeartbeatCounter())
+						&& incomingMember.getHeartbeatCounter() > matchedMember.GetHeartbeatCounter())
 				{
-					matchedMember.ResetHeartbeatCounter(member.getHeartbeatCounter());
+					matchedMember.ResetHeartbeatCounter(incomingMember.getHeartbeatCounter());
 					matchedMember.ResetLocalTime(GetMyLocalTime());
 					if(matchedMember.IsSuspect())
 					{
@@ -183,14 +183,14 @@ public class Membership implements Runnable{
 			else
 			{
 				//Unseen member
-				if(!member.getHasLeft())
+				if(!incomingMember.getHasLeft())
 				{	
-					m_oLogger.Info("Adding node to memberlist " + member.getIP() );
-					String IP = member.getIP();
-					int heartbeatCounter = member.getHeartbeatCounter();
-					int serialNumber = member.getUniqueSerialNumber();
+					m_oLogger.Info("Adding node to memberlist " + incomingMember.getIP() );
+					String IP = incomingMember.getIP();
+					int heartbeatCounter = incomingMember.getHeartbeatCounter();
+					int serialNumber = incomingMember.getUniqueSerialNumber();
 					long localTime = GetMyLocalTime(); //Our machine localTime
-					String uniqueId = member.getUniqueId();
+					String uniqueId = incomingMember.getUniqueId();
 					AddMemberToStruct(uniqueId, IP, heartbeatCounter, localTime, serialNumber);
 				}
 			}
@@ -227,6 +227,7 @@ public class Membership implements Runnable{
 				msg.append(m_oHmap.get(vMembers.get(i)).GetStr());
 		}
 		m_oLockR.unlock();
+		msg.append("The leader is : " + m_oElection.GetLeaderId());
 		msg.append("===========ENDLIST============");
 		m_oLogger.Debug(msg.toString());
 	}
@@ -296,11 +297,17 @@ public class Membership implements Runnable{
 					}
 					else
 					{
-						if((GetMyLocalTime() - memberStruct.GetLocalTime()) > m_nTfail)
+						if((GetMyLocalTime() - memberStruct.GetLocalTime()) > m_nTfail && !memberStruct.HasLeft())
 						{
 							m_oLogger.Info(new String("IMPORTANT : Suspected node : " + memberStruct.GetIP()));
 							memberStruct.setAsSuspect();
 						}
+					}
+					if(memberStruct.IsSuspect())
+					{
+						m_oLogger.Info("The suspected node is : " + memberStruct.GetUniqueId());
+						m_oLogger.Info("The heartbeat count of suspect node is : " + String.valueOf(memberStruct.GetHeartbeatCounter()));
+				
 					}
 				}
 			}
