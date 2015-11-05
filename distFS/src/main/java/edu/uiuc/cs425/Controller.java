@@ -198,7 +198,7 @@ public class Controller {
 			}
 			int leaderCounter = 0;
 			try {
-				while(Commons.FAILURE == proxy.IsLeaderAlive())
+				while(!proxy.IsLeaderAlive())
 				{
 					if( leaderCounter++ > 10) 
 					{
@@ -265,7 +265,7 @@ public class Controller {
 							if(Commons.SUCCESS == proxy.Initialize(sIP, m_oConfig.CmdPort(), m_oLogger))
 							{
 								int counter = 0;
-								while(Commons.FAILURE == proxy.IsLeaderAlive())
+								while(!proxy.IsLeaderAlive())
 								{
 									if( counter++ > 10) 
 									{

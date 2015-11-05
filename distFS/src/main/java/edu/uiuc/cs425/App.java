@@ -12,7 +12,7 @@ public class App
     {
     	if( args.length !=1 )
 		{
-			System.out.println("Usage: java -cp ~/distMemFinal.jar edu.uiuc.cs425.App <xml_path>");
+			System.out.println("Usage: java -cp ~/distFSFinal.jar edu.uiuc.cs425.App <xml_path>");
 			System.exit(Commons.FAILURE);
 		}
     	

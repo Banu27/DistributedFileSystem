@@ -50,7 +50,7 @@ public class CommandIfaceImpl implements Iface {
 		return m_oElection.GetLeaderId();
 	}
 	
-	public int IsLeaderAlive()
+	public boolean IsLeaderAlive()
 	{
 		return m_oElection.IsLeaderAlive();
 	}
@@ -73,11 +73,7 @@ public class CommandIfaceImpl implements Iface {
 		return m_oSDFSMaster.GetFileLocations(filename);
 	}
 	
-	//At NodeManager
-	public void GetFile(String filename) throws TException
-	{
-		//Write code to copy file to the client
-	}
+	
 	
 	//At NodeManager
 	public int AddFile(int size, String fileID, ByteBuffer payload, boolean replicate) throws TException {
@@ -87,8 +83,6 @@ public class CommandIfaceImpl implements Iface {
 		file_.AddFileData(payload);
 		// forward the info to the node manager
 		return m_oNodeMgr.AddFile(file_, replicate);
-		
-		//ACK??
 		
 	}
 	
@@ -113,5 +107,21 @@ public class CommandIfaceImpl implements Iface {
 	public void DeleteFile(String fileID) throws TException {
 		m_oNodeMgr.DeleteFile(fileID);	
 	}
+
+	public String GetLeaderIP() throws TException {
+		return m_oElection.GetLeaderIP();
+	}
+
+	public ByteBuffer GetFile(String filename) throws TException {
+		return m_oNodeMgr.GetFile(filename);
+	}
+
+	public Set<String> GetFileList() throws TException {
+		return m_oNodeMgr.GetFileList();
+	}
+
+
+	
+
 
 }

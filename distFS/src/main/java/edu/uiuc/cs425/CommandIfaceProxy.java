@@ -66,7 +66,7 @@ public class CommandIfaceProxy implements Iface {
 	public void ReceiveElectionMessage() throws TException {
 		 m_oClient.ReceiveElectionMessage();	
 	}
-	public int IsLeaderAlive() throws TException {
+	public boolean IsLeaderAlive() throws TException {
 		return m_oClient.IsLeaderAlive();
 	}
 	
@@ -75,11 +75,7 @@ public class CommandIfaceProxy implements Iface {
 		m_oClient.ReceiveCoordinationMessage(leaderId);
 	}
 
-	//NodeManager
-	public void GetFile(String Filename) throws TException
-	{
-		m_oClient.GetFile(Filename);
-	}
+	
 	
 	public Set<String> GetFileLocations(String Filename) throws TException
 	{
@@ -108,5 +104,22 @@ public class CommandIfaceProxy implements Iface {
 	{
 		return m_oClient.GetAvailableFiles();
 	}
+
+	public String GetLeaderIP() throws TException {
+		return m_oClient.GetLeaderIP();
+	}
+
+	public ByteBuffer GetFile(String filename) throws TException {
+		return m_oClient.GetFile(filename);
+	}
+
+	public Set<String> GetFileList() throws TException {
+		return m_oClient.GetFileList();
+	}
+
+	
+
+
+
 	
 }

@@ -22,10 +22,7 @@ public class Election {
 	private String			m_sLeaderId;
 	private int				m_nServicePortForProxys;
 	
-	public boolean IsMasterAlive()
-	{
-		return true;
-	}
+	
 	
 	public void SetSerialNumber(int serialNumber)
 	{
@@ -57,11 +54,11 @@ public class Election {
 		m_nServicePortForProxys = servicePort;
 	}
 	
-	public int IsLeaderAlive()
+	public boolean IsLeaderAlive()
 	{
 		if (m_eState == m_enumState.LEADERALIVE)
-			return Commons.SUCCESS;
-		return Commons.FAILURE;
+			return true;
+		return false;
 	}
 	
 	public void StartElection()

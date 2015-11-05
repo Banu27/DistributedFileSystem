@@ -1,7 +1,10 @@
 package edu.uiuc.cs425;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -72,12 +75,32 @@ public class NodeFileMgr implements Runnable {
 		m_oLockW.lock();
 		DNTable.put(file_.m_sFileID, file_);
 		m_oLockW.unlock();
+		//send ack to master
+		if(m_oElection.IsLeaderAlive())
+		{
+			CommandIfaceProxy proxyTemp = new CommandIfaceProxy();
+			m_oLogger.Info("Trying to initiate connection with " + m_oElection.GetLeaderIP() );
+			if(Commons.SUCCESS == proxyTemp.Initialize(m_oElection.GetLeaderIP(),m_oAccesor.CmdPort(),m_oLogger))
+			{	try {
+					proxyTemp.FileStorageAck(file_.m_sFileID, m_oMemberList.UniqueId());; 
+													
+				} catch (TException e) {
+					m_oLogger.Error("Failed to send ack message to " + m_oElection.GetLeaderIP());
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
+					
+				}
+			}
+		}
+		
 		if(replicate)
 		{
 			// get ips from membership list
 			ArrayList<String> vUniqueIds = m_oMemberList.GetMemberIds();
 			String myID = m_oMemberList.UniqueId();
 			vUniqueIds.remove(myID);
+			
+			
+			
 			Set<Integer> rands = Commons.RandomK(Math.min(2, vUniqueIds.size()),vUniqueIds.size(),m_oMemberList.GetMyLocalTime());
 			int failcount = 0;
 			for (Integer i : rands)
@@ -140,6 +163,14 @@ public class NodeFileMgr implements Runnable {
 	}
 	
 	
+	public Set<String> GetFileList()
+	{
+		m_oLockR.lock();
+		Set<String> keys =  DNTable.keySet();
+		m_oLockR.unlock();
+		return keys;
+	}
+	
 	// this call is invoked from the controller by starting a 
 	// new thread. 
 	public void run() {
@@ -150,7 +181,7 @@ public class NodeFileMgr implements Runnable {
 		}
 		while(true)
 		{
-			if(DNTable.size() > 0 && m_oElection.IsMasterAlive())
+			if((DNTable.size() > 0) && m_oElection.IsLeaderAlive())
 			{
 				FileReportProxy proxy = new FileReportProxy();
 				String ip = m_oElection.GetLeaderIP();
@@ -170,6 +201,31 @@ public class NodeFileMgr implements Runnable {
 		}
 	}
 	
-	
+	public ByteBuffer GetFile(String SDFSName)
+	{
+		SDFSFile file_ = DNTable.get(SDFSName);
+		ByteBuffer mBuf = null;
+		if( file_ != null )
+		{
+			FileInputStream fIn;
+		    FileChannel fChan;
+		    long fSize;
+
+		    try {
+		      fIn = new FileInputStream(Commons.SDFS_LOC + SDFSName);
+		      fChan = fIn.getChannel();
+		      fSize = fChan.size();
+		      mBuf = ByteBuffer.allocate((int) fSize);
+		      fChan.read(mBuf);
+		      mBuf.rewind();
+		      fChan.close(); 
+		      fIn.close();
+		    } catch (IOException exc) {
+		    	m_oLogger.Error(m_oLogger.StackTraceToString(exc));
+		    	return null;
+		      }
+		}
+		return mBuf;
+	}
 	
 }
