@@ -1,6 +1,8 @@
 package edu.uiuc.cs425;
 
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -73,8 +75,22 @@ public class CommandIfaceProxy implements Iface {
 		m_oClient.ReceiveCoordinationMessage(leaderId);
 	}
 
+	//NodeManager
+	public void GetFile(String Filename) throws TException
+	{
+		m_oClient.GetFile(Filename);
+	}
+	
+	public Set<String> GetFileLocations(String Filename) throws TException
+	{
+		return m_oClient.GetFileLocations(Filename);
+	}
 
-
+	public String RequestAddFile(String filename) throws TException
+	{
+		return m_oClient.RequestAddFile(filename);
+	}
+	
 	public int AddFile(int size, String fileID, ByteBuffer payload, boolean replicate) throws TException {
 		return m_oClient.AddFile(size, fileID, payload, replicate);
 	}
@@ -82,4 +98,15 @@ public class CommandIfaceProxy implements Iface {
 	public void DeleteFile(String fileID) throws TException {
 		m_oClient.DeleteFile(fileID);
 	}
+	
+	public void FileStorageAck(String filename, String incomingID) throws TException
+	{
+		m_oClient.FileStorageAck(filename,incomingID);
+	}
+	
+	public List<String> GetAvailableFiles() throws TException
+	{
+		return m_oClient.GetAvailableFiles();
+	}
+	
 }

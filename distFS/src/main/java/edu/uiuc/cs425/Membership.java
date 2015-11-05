@@ -249,7 +249,10 @@ public class Membership implements Runnable{
 	
 	public String GetIP(String uniqueId)
 	{
-		return m_oHmap.get(uniqueId).GetIP();
+		if(m_oHmap.containsKey(uniqueId))
+			return m_oHmap.get(uniqueId).GetIP();
+		else 
+			return String.valueOf(Commons.FAILURE);
 	}
 	
 	public void run()

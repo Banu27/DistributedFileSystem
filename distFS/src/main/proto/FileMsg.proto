@@ -3,6 +3,6 @@ package buffer;
 option java_package = "edu.uiuc.cs425";
 
 message FileReport {
-    required string nodeID = 1; 
-	repeated string sFileIDs = 2;
+    required string node_iD = 1;
+	repeated string s_file_iDs = 2;
 }
