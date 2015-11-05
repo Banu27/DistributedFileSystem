@@ -292,9 +292,11 @@ public class Membership implements Runnable{
 							m_oLogger.Info(new String("Starting new election, leader failure detected"));
 							m_oElection.StartElection();
 							//Send a message to election Object????? and start election! Call from here??
+							m_oLogger.Info(new String("Finished sending StartElection messages"));
 						
 						}
 						m_oLockW.lock();
+					        m_oLogger.Info(new String("Remvoing suspected node:" + memberStruct.GetIP()));	
 						iterator.remove();
 						m_oLockW.unlock();
 					}

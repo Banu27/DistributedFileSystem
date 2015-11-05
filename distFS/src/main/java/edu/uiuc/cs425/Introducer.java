@@ -29,13 +29,8 @@ public class Introducer {
 	}
 	
 	public int JoinGroup() throws TException {
-		// TODO Auto-generated method stub
-		//No threading so no lock
-		synchronized (this) {
-			m_nSerialNumber = m_nSerialNumber + 1;	
-		}
 		m_oLogger.Info(new String("New node has joined with serial number : " + String.valueOf(m_nSerialNumber)));
-		return m_nSerialNumber;//Commons.SUCCESS;
+		return m_nSerialNumber++;//Commons.SUCCESS;
 	}
 
 	public ByteBuffer GetMembershipList() throws TException {
