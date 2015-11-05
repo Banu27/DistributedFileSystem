@@ -94,8 +94,9 @@ public class Election {
 																// wont be executed
 							m_nSentElectionMessages ++;
 					} catch (TException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						m_oLogger.Error("Failed to send election message to " + mentry.getValue().toString());
+						m_oLogger.Error(m_oLogger.StackTraceToString(e));
+						
 					}
 				}
 			}
@@ -103,7 +104,7 @@ public class Election {
 		if(m_nSentElectionMessages == 0)
 		{
 			m_oLogger.Info(new String("No election messages were sent, I AM THE LEADER"));
-			m_sLeaderId = m_oMembershipList.UniqueId();
+			SetLeader(m_oMembershipList.UniqueId());
 			m_oLogger.Info(new String("My leader id is : " + m_sLeaderId));
 			SendCoordinationMessage();
 		}
@@ -117,9 +118,10 @@ public class Election {
 		while(it.hasNext())
 		{
 			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembershipList.GetIP(it.next().toString()),m_nServicePortForProxys,m_oLogger))
+			String sIP = m_oMembershipList.GetIP(it.next().toString());
+			if(Commons.SUCCESS == ProxyTemp.Initialize(sIP,m_nServicePortForProxys,m_oLogger))
 			{	
-				m_oLogger.Info("sending message to " + it.next().toString());
+				m_oLogger.Info("sending message to " + sIP);
 				try {
 						ProxyTemp.ReceiveCoordinationMessage(m_sLeaderId);
 					} catch (TException e) {
@@ -134,7 +136,8 @@ public class Election {
 	
 	public void ReceiveCoordinationMessage(String leaderId)
 	{
-		m_sLeaderId = leaderId;
+		m_oLogger.Info("Received cordination from " + leaderId);
+		SetLeader(leaderId);
 	}
 		
 	public void ReceiveElectionMessage()

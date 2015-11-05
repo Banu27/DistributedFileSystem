@@ -6,9 +6,9 @@ service CommandInterface{
    int JoinGroup();
    string GetLeaderId();
    binary GetMembershipList();
-   void ReceiveElectionMessage();
+   oneway void ReceiveElectionMessage();
    int AddFile(1:int size, 2:string fileID, 3:binary payload, 4:bool replicate);
-   void DeleteFile(1:string fileID);
-   void ReceiveCoordinationMessage(1:string leaderId);
+   oneway void DeleteFile(1:string fileID);
+   oneway void ReceiveCoordinationMessage(1:string leaderId);
    int IsLeaderAlive();
 }
