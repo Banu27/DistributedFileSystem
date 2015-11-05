@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MembershipConfig>
+   <Introducer ip="172.22.150.50" port="9725" />
+   <Loss rate="-1"/>
+   <Heartbeat port="8043" interval="1000" gossipNodes="2" />
+   <Failure interval="2500" checkPoint="/home/ajayaku2/checkpoint"/>
+   <BlockReport port="3425" interval="10000" />
+   <Logger path="/home/ajayaku2/mp2/log/log.txt" />
+</MembershipConfig>
