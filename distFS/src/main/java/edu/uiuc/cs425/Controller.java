@@ -27,6 +27,7 @@ public class Controller {
 	private String 			introIP;
 	private String 			hostIP; //What is this? - Banu
 	private Election		m_oElection;
+	private SDFSMaster		m_oSDFSMaster;
 	
 	public Controller()
 	{
@@ -38,6 +39,7 @@ public class Controller {
 		m_oLogger		= new Logger();
 		m_oUserInput    = new Scanner(System.in);
 		m_oElection 	= new Election();
+		m_oSDFSMaster	= new SDFSMaster();
 	}
 	
 	public int Initialize(String sXML)
@@ -80,7 +82,8 @@ public class Controller {
 		m_oMember.Initialize(m_oConfig, m_oLogger, introIP);
 		
 		//Initializing Election object
-		m_oElection.Initialize(m_oMember,m_oLogger,m_oConfig.CmdPort());
+		//INITIALIZE MASTER BEFORE INITIALIZE ELECTION
+		m_oElection.Initialize(m_oMember,m_oLogger,m_oConfig.CmdPort(),m_oSDFSMaster);
 		
 		m_oMember.setElectionObject(m_oElection);
 		

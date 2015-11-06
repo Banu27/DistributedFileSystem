@@ -47,7 +47,7 @@ public class CommandIfaceImpl implements Iface {
 
 	public String GetLeaderId()
 	{
-		m_oElection.GetLeaderId();
+		return m_oElection.GetLeaderId();
 	}
 	
 	public String GetLeaderIP()
