@@ -33,6 +33,7 @@ public class ConfigAccessor {
 	private int			m_nLossRate;
 	private int         m_nFRPort;
 	private int 		m_nFRInterval;
+	private int			m_nNumReplicas;
 	
 	public ConfigAccessor()
 	{
@@ -92,6 +93,11 @@ public class ConfigAccessor {
 	public int GetFRInterval()
 	{
 		return m_nFRInterval;
+	}
+	
+	public int GetNumberOfReplicas()
+	{
+		return m_nNumReplicas;
 	}
 	
 	public int Initialize(String sXMLFilePath)
@@ -158,6 +164,11 @@ public class ConfigAccessor {
 				Element eElement = (Element) nNode;
 				m_nFRPort  = Integer.parseInt(eElement.getAttribute("port"));
 				m_nFRInterval = Integer.parseInt(eElement.getAttribute("interval"));
+			}
+			else if (nNode.getNodeName() == "NumReplicas")
+			{
+				Element eElement = (Element) nNode;
+				m_nNumReplicas = Integer.parseInt(eElement.getAttribute("replicas"));
 			}
 		}
 		return Commons.SUCCESS;

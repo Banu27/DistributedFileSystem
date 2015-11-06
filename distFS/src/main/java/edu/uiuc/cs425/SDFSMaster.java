@@ -64,7 +64,8 @@ public class SDFSMaster {
 			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(nodeId), m_nCommandServicePort, m_oLogger))
 			{
 				try {
-					Set<String> fileSetForID = ProxyTemp.RequestFileReport(m_oMembership.GetIP(m_sMyID));
+					//Receiving the set of filenames for each node
+					Set<String> fileSetForID = ProxyTemp.RequestFileList(m_oMembership.GetIP(m_sMyID));
 					for(String id : fileSetForID)
 					{
 						if(m_oFileLocationTable.containsKey(id))
@@ -104,11 +105,9 @@ public class SDFSMaster {
 		return FileList;
 	}
 	
-	//Return an IP randomly?
-	//FIX THIS IN THE IMPL AND PROXY
 	public String RequestAddFile(String FileId) // thrift //What is payload??
 	{
-		//Populate values if acknowledgement is received
+		//Populate values (nodeList) if acknowledgement is received
 		m_oLockW.lock();
 		m_oFileLocationTable.put(FileId, new HashSet<String>());
 		m_oLockW.unlock();
@@ -123,8 +122,6 @@ public class SDFSMaster {
 		Iterator<String> iterator = NodeList.iterator();
 		while(iterator.hasNext())
 		{
-			//create proxy with iterator.next()
-			//proxy.deleteFile(Filename);
 			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(iterator.next()),m_nCommandServicePort,m_oLogger))
 			{
@@ -148,7 +145,8 @@ public class SDFSMaster {
 		return NodeList;		
 	}
 	
-	//From the first file add - received from the primary copy	
+	//From the first file add - received from the primary copy
+	//Is it received from every node? 
 	void FileStorageAck(String Filename, String IncomingID) // from client thrift
 	{
 		//FileStorageAck if only received after the primary copy is successful

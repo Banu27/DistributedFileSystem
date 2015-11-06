@@ -20,26 +20,30 @@ public class ReplicationMgr  implements Runnable{
 	private int									m_nNumberOfReplicas; //Get from config accessor?
 	private Membership							m_oMembership;
 	private int									m_nServicePort;
+	private int									m_nFileReportInterval; //Get from config accessor
 	
 	//Methods:
 	//CheckReplicas //Separate thread - Periodic check
 	//MakeReplica(IP) //To some node saying make replica in the given IP
 
-	public void Initialize(Logger oLogger, SDFSMaster oMaster, Membership oMember, int numberOfReplicas, int nPort)
+	public void Initialize(Logger oLogger, SDFSMaster oMaster, Membership oMember, int numReplicas, int nPort, int fileReportInterval)
 	{
 	
 		//Initialize only if master
 		m_oLogger = oLogger;
 		m_oMaster = oMaster;
 		m_oFileLocationTable = oMaster.GetFileLocationTable(); 
-		m_nNumberOfReplicas = numberOfReplicas;
+		m_nNumberOfReplicas = numReplicas;
 		m_oMembership = oMember;
 		m_nServicePort = nPort;
+		m_nFileReportInterval = fileReportInterval;
 	}
 
 
 	public void run() {
 		// TODO Auto-generated method stub
+		
+		//Initial sleep
 		try {
 			Thread.sleep(3000); //Where is this time defined??
 		} catch (InterruptedException e1) {
@@ -89,6 +93,14 @@ public class ReplicationMgr  implements Runnable{
 					
 				}
 				
+			}
+			long diff = (System.nanoTime() - start_time)/1000000;
+			try {
+				Thread.sleep(m_nFileReportInterval - diff);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				m_oLogger.Error(m_oLogger.StackTraceToString(e));
+				return;
 			}
 			
 		}

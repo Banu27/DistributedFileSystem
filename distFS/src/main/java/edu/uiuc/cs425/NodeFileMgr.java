@@ -67,7 +67,7 @@ public class NodeFileMgr implements Runnable {
 	// this request is forwarded by the thrift service. We assume that the
 	// file is already written to the disk before this call is done. All this
 	// call does is to add the file information to the DNTable and see if 
-	// there is a need to replicate. If there is a replicaiton request needed
+	// there is a need to replicate. If there is a replication request needed
 	// them it forwards it to two other nodes randomly selected. The method is
 	// partially implemented. Look at the TODO at the end of the method.
 	public int AddFile(SDFSFile file_, boolean replicate)
@@ -161,11 +161,15 @@ public class NodeFileMgr implements Runnable {
 		return fileReport.toByteArray();
 	}
 	
-	public Set<String> RequestFileReport(String ReceiverIP)
+	//IS THIS NEEDED?? CAN GetFileList() take care of this? 
+	//Confusion because GetFileList is generally called by client
+	//I feel it would still work
+	public Set<String> RequestFileList(String ReceiverIP)
 	{
 		return DNTable.keySet();
 	}
 	
+	//THIS NEEDS TO BE DONE
 	public void RequestFileCopy(String filename, String nodeID)
 	{
 		//Write the implementation
