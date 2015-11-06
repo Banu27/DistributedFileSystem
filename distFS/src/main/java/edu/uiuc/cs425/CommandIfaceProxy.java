@@ -75,8 +75,6 @@ public class CommandIfaceProxy implements Iface {
 		m_oClient.ReceiveCoordinationMessage(leaderId);
 	}
 
-	
-	
 	public Set<String> GetFileLocations(String Filename) throws TException
 	{
 		return m_oClient.GetFileLocations(Filename);
@@ -91,8 +89,8 @@ public class CommandIfaceProxy implements Iface {
 		return m_oClient.AddFile(size, fileID, payload, replicate);
 	}
 
-	public int DeleteFile(String fileID) throws TException {
-		return m_oClient.DeleteFile(fileID);
+	public void DeleteFile(String fileID) throws TException {
+		m_oClient.DeleteFile(fileID);
 	}
 	
 	public void FileStorageAck(String filename, String incomingID) throws TException
@@ -109,23 +107,25 @@ public class CommandIfaceProxy implements Iface {
 		return m_oClient.GetLeaderIP();
 	}
 
-	public ByteBuffer GetFile(String filename) throws TException {
+	public ByteBuffer GetFile(String filename) throws TException
+	{
 		return m_oClient.GetFile(filename);
 	}
+
 
 	public Set<String> GetFileList() throws TException {
 		return m_oClient.GetFileList();
 	}
 
-	
-
-
-
-	
-	public void RequestFileReport(String receiverIp) throws TException
+	public Set<String> RequestFileReport(String receiverIp) throws TException
 	{
-		m_oClient.RequestFileReport(receiverIp);
+		return m_oClient.RequestFileReport(receiverIp);
 	}
 
+	public void RequestFileCopy(String filename, String nodeID) throws TException
+	{
+		m_oClient.RequestFileCopy(filename,nodeID);
+	}
+	
 	
 }

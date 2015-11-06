@@ -98,9 +98,6 @@ public class NodeFileMgr implements Runnable {
 			ArrayList<String> vUniqueIds = m_oMemberList.GetMemberIds();
 			String myID = m_oMemberList.UniqueId();
 			vUniqueIds.remove(myID);
-			
-			
-			
 			Set<Integer> rands = Commons.RandomK(Math.min(2, vUniqueIds.size()),vUniqueIds.size(),m_oMemberList.GetMyLocalTime());
 			int failcount = 0;
 			for (Integer i : rands)
@@ -164,19 +161,20 @@ public class NodeFileMgr implements Runnable {
 		return fileReport.toByteArray();
 	}
 	
-	public void RequestFileReport(String ReceiverIP)
+	public Set<String> RequestFileReport(String ReceiverIP)
 	{
-		if(DNTable.size() > 0)
-		{
-			FileReportProxy proxy = new FileReportProxy();
-			proxy.Initialize(ReceiverIP, m_oAccesor.GetFRPort(), m_oLogger);
-			try {
-				proxy.SendFileReport(GetFileReport());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return;
+		return DNTable.keySet();
+	}
+	
+	public void RequestFileCopy(String filename, String nodeID)
+	{
+		//Write the implementation
+		//Copy file from current node to the nodeID
+		CommandIfaceProxy proxy = new CommandIfaceProxy();
+		proxy.Initialize(m_oMemberList.GetIP(m_oMemberList.GetIP(nodeID)), m_oAccesor.CmdPort(), m_oLogger);
+		//try {
+		//	proxy.AddFile(file_.m_nSize, file_.m_sFileID, file_.GetBuffer(), false);
+		//}
 	}
 	
 	public Set<String> GetFileList()

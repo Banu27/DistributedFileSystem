@@ -47,7 +47,12 @@ public class CommandIfaceImpl implements Iface {
 
 	public String GetLeaderId()
 	{
-		return m_oElection.GetLeaderId();
+		m_oElection.GetLeaderId();
+	}
+	
+	public String GetLeaderIP()
+	{
+		return m_oElection.GetLeaderIP();
 	}
 	
 	public boolean IsLeaderAlive()
@@ -86,9 +91,9 @@ public class CommandIfaceImpl implements Iface {
 		
 	}
 	
-	public void RequestFileReport(String receiverIp) throws TException
+	public Set<String> RequestFileReport(String receiverIp) throws TException
 	{
-		m_oNodeMgr.RequestFileReport(receiverIp);
+		return m_oNodeMgr.RequestFileReport(receiverIp);
 	}
 	
 	public String RequestAddFile(String filename) throws TException
@@ -109,12 +114,8 @@ public class CommandIfaceImpl implements Iface {
 	}
 
 
-	public int DeleteFile(String fileID) throws TException {
-		return m_oNodeMgr.DeleteFile(fileID);	
-	}
-
-	public String GetLeaderIP() throws TException {
-		return m_oElection.GetLeaderIP();
+	public void DeleteFile(String fileID) throws TException {
+		m_oNodeMgr.DeleteFile(fileID);	
 	}
 
 	public ByteBuffer GetFile(String filename) throws TException {
@@ -125,8 +126,13 @@ public class CommandIfaceImpl implements Iface {
 		return m_oNodeMgr.GetFileList();
 	}
 
-
-	
-
+	public void RequestFileCopy(String filename, String nodeID) throws TException
+	{
+		//How do I get file size????
+		//How do I get payload???
+		//SDFSFile file_ = new SDFSFile(size, filename, Commons.SDFS_LOC + filename);
+		//file_.AddFileData(payload);
+		m_oNodeMgr.RequestFileCopy(filename,nodeID);
+	}
 
 }

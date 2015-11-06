@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
+import java.util.Vector;
+
+import org.apache.thrift.TException;
 
 public class ReplicationMgr  implements Runnable{
 
@@ -52,32 +55,43 @@ public class ReplicationMgr  implements Runnable{
 			{
 				Entry<String, HashSet<String>> element = iterator.next();
 				String Filename = element.getKey();
-				if(element.getValue().size() != m_nNumberOfReplicas)
+				if(element.getValue().size() != m_nNumberOfReplicas && !element.getValue().isEmpty())
 				{
 					int numberOfReplicasToBeMade = element.getValue().size() - m_nNumberOfReplicas;
 					Random randNumberGenerator = new Random();
 					ArrayList<String> IDs = m_oMembership.GetMemberIds();
-					String idPresent; //Should be a list instead
-					for(String id : element.getValue())
+					Vector<String> idPresent = new Vector<String>(); //Should be a list instead
+					for(String id : IDs)
 					{
-						id = idPresent;
+						idPresent.addElement(id);
 						IDs.remove(id);
 					}
 					for(int i=0; i<numberOfReplicasToBeMade; i++)
 					{
 						String copyIp = m_oMembership.GetIP(IDs.get(randNumberGenerator.nextInt(IDs.size())));
 						CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-						if(Commons.SUCCESS == ProxyTemp.Initialize(idPresent, m_nServicePort, m_oLogger))
+						if(Commons.SUCCESS == ProxyTemp.Initialize(idPresent.get(0), m_nServicePort, m_oLogger))
 						{
-							ProxyTemp.RequestFileCopy(Filename,copyIp);
+							try {
+								ProxyTemp.RequestFileCopy(Filename,copyIp);
+							} catch (TException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 						//Call Add file here
 					}
 				}
+				if(element.getValue().size() > m_nNumberOfReplicas)
+				{
+					int numberOfReplicasToBeRemoved = m_nNumberOfReplicas - element.getValue().size();
+					HashSet<String> listOfIds = element.getValue();
+					
+				}
 				
 			}
 			
-	}
+		}
 	
-	
+	}	
 }

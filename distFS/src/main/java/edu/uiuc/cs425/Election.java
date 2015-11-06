@@ -35,7 +35,11 @@ public class Election {
 	public void SetLeader(String leaderId)
 	{
 		m_sLeaderId = leaderId;
-		
+	}
+	
+	public void SetNewLeader(String leaderId)
+	{
+		m_sLeaderId = leaderId;
 		//MASTER HAS TO FINISH		
 		if(Commons.SUCCESS == m_oSDFSMaster.MasterSetup())
 			m_eState = m_enumState.LEADERALIVE;
@@ -94,7 +98,6 @@ public class Election {
 				if(Commons.SUCCESS == ProxyTemp.Initialize(mentry.getValue().toString(),m_nServicePortForProxys,m_oLogger))
 				{	try {
 							ProxyTemp.ReceiveElectionMessage(); //if this throws exception, the next line
-																// wont be executed
 							m_nSentElectionMessages ++;
 					} catch (TException e) {
 						m_oLogger.Error("Failed to send election message to " + mentry.getValue().toString());
@@ -107,7 +110,7 @@ public class Election {
 		if(m_nSentElectionMessages == 0)
 		{
 			m_oLogger.Info(new String("No election messages were sent, I AM THE LEADER"));
-			SetLeader(m_oMembershipList.UniqueId());
+			SetNewLeader(m_oMembershipList.UniqueId());
 			m_oLogger.Info(new String("My leader id is : " + m_sLeaderId));
 			SendCoordinationMessage();
 		}

@@ -60,9 +60,27 @@ public class SDFSMaster {
 		while(iterator.hasNext())
 		{
 			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(iterator.next()), m_nCommandServicePort, m_oLogger))
+			String nodeId = iterator.next();
+			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(nodeId), m_nCommandServicePort, m_oLogger))
 			{
-				ProxyTemp.RequestFileReport(m_oMembership.GetIP(m_sMyID));
+				try {
+					Set<String> fileSetForID = ProxyTemp.RequestFileReport(m_oMembership.GetIP(m_sMyID));
+					for(String id : fileSetForID)
+					{
+						if(m_oFileLocationTable.containsKey(id))
+						{
+							m_oFileLocationTable.get(id).add(nodeId);
+						}
+						else
+						{
+							m_oFileLocationTable.put(id, new HashSet<String>());
+							m_oFileLocationTable.get(id).add(nodeId);
+						}
+					}
+				} catch (TException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		return Commons.SUCCESS;
@@ -95,25 +113,10 @@ public class SDFSMaster {
 		m_oFileLocationTable.put(FileId, new HashSet<String>());
 		m_oLockW.unlock();
 		ArrayList<String> IDs = m_oMembership.GetMemberIds();
-		
-		String PrimaryIp = GetPrimaryId(IDs);
-		while(!PrimaryIp.equals(String.valueOf(Commons.FAILURE)))
-		{
-			PrimaryIp = GetPrimaryId(IDs);
-		}
-		
-		return PrimaryIp;
-	}
-	
-	private String GetPrimaryId(ArrayList<String> IDs)
-	{
-		int NumOfMembers = IDs.size();
 		Random randomNumberGenerator = new Random();
-		int newRand;
-		newRand = randomNumberGenerator.nextInt(NumOfMembers);
-		return m_oMembership.GetIP(IDs.get(newRand));
+		return m_oMembership.GetIP(IDs.get(randomNumberGenerator.nextInt(IDs.size())));
 	}
-	
+				
 	void DeleteFile(String Filename)	//Thrift
 	{
 		HashSet<String> NodeList = m_oFileLocationTable.get(Filename);
@@ -126,18 +129,14 @@ public class SDFSMaster {
 			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(iterator.next()),m_nCommandServicePort,m_oLogger))
 			{
 				try {
-					if(Commons.SUCCESS == ProxyTemp.DeleteFile(Filename))//The thrift thing has to return from this call.
-					{
-							m_oFileLocationTable.remove(Filename);
-					}
+					ProxyTemp.DeleteFile(Filename);//The thrift thing has to return from this call.
 				} catch (TException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-	
 		}
-		
+		m_oFileLocationTable.remove(Filename);
 	}
 	
 	//Initiate file transfer to client
@@ -160,17 +159,12 @@ public class SDFSMaster {
 	{
 		FileReport report = FileReport.parseFrom(reportBuf);
 		// TODO complete impl of the actual merge with the MAsterBlockLocTable
-		// get the nodeID and Block info from the below calls
-		//report.getNodeID();
-		//report.getSBlockIDsList()
-		
+		// get the nodeID and Block info from the below calls		
 		m_oLogger.Info("Merging FileReport");
 		
 		//Write lock while merging
 		m_oLockW.lock();
 		String IncomingNodeId = report.getNodeID();
-		
-		
 		List<String> FileIDs = report.getSFileIDsList();
 		for(String incomingFileName : FileIDs)
 		{ 
@@ -181,7 +175,6 @@ public class SDFSMaster {
 				{
 					matchedFileNodeList.add(IncomingNodeId);
 				}
-				
 			}
 		}
 		m_oLockW.unlock();
