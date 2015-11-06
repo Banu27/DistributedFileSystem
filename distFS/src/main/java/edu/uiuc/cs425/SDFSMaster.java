@@ -13,7 +13,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 import com.google.protobuf.InvalidProtocolBufferException;
-
 import edu.uiuc.cs425.FileMsg.FileReport;
 
 
@@ -29,18 +28,46 @@ public class SDFSMaster {
 	private Lock 									m_oLockR; 
 	private Lock 									m_oLockW; 
 	private int										m_nCommandServicePort;
+	private Election								m_oElection;
 	
-	public void Initialize(Membership membership, Logger logger, int servicePort)
+	public void Initialize(Membership membership, Logger logger, int servicePort, Election election)
 	{
 		m_oMembership = membership;
 		m_oLogger = logger;
 		m_nCommandServicePort = servicePort;
+		m_oElection = election;
 		m_sMyID = m_oMembership.UniqueId(); //Ensure this is working
 		m_oReadWriteLock = new ReentrantReadWriteLock();
 		m_oLockR = m_oReadWriteLock.readLock();
 		m_oLockW = m_oReadWriteLock.writeLock();
 		
 	}
+	
+	public HashMap<String,HashSet<String>> GetFileLocationTable()
+	{
+		return m_oFileLocationTable;
+	}
+	
+	public int MasterSetup()
+	{
+		// I am going to make the master ask all the other members for block report
+		// It requests all the nodes but reports but doesn't care if it hasn't received. Is this alright??
+		// This is because, only 2 failures at a time. Assuming that the reports don't get sent only in a failure case,
+		// this is alright because one id per file is always present. Not very robust?? I can make it TCP. 
+		ArrayList<String> IDs = m_oMembership.GetMemberIds();
+		
+		Iterator<String> iterator = IDs.iterator();
+		while(iterator.hasNext())
+		{
+			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(iterator.next()), m_nCommandServicePort, m_oLogger))
+			{
+				ProxyTemp.RequestFileReport(m_oMembership.GetIP(m_sMyID));
+			}
+		}
+		return Commons.SUCCESS;
+	}
+
 	
 	public List<String> GetAvailableFiles() //List used because of thrift
 	{
@@ -84,10 +111,6 @@ public class SDFSMaster {
 		Random randomNumberGenerator = new Random();
 		int newRand;
 		newRand = randomNumberGenerator.nextInt(NumOfMembers);
-		while(IDs.get(newRand) == m_sMyID)
-		{
-			newRand = randomNumberGenerator.nextInt(NumOfMembers);
-		}
 		return m_oMembership.GetIP(IDs.get(newRand));
 	}
 	
@@ -103,7 +126,10 @@ public class SDFSMaster {
 			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(iterator.next()),m_nCommandServicePort,m_oLogger))
 			{
 				try {
-					ProxyTemp.DeleteFile(Filename);
+					if(Commons.SUCCESS == ProxyTemp.DeleteFile(Filename))//The thrift thing has to return from this call.
+					{
+							m_oFileLocationTable.remove(Filename);
+					}
 				} catch (TException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -143,6 +169,8 @@ public class SDFSMaster {
 		//Write lock while merging
 		m_oLockW.lock();
 		String IncomingNodeId = report.getNodeID();
+		
+		
 		List<String> FileIDs = report.getSFileIDsList();
 		for(String incomingFileName : FileIDs)
 		{ 

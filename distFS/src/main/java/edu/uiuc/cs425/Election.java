@@ -21,6 +21,8 @@ public class Election {
 	private int				m_nSentElectionMessages;
 	private String			m_sLeaderId;
 	private int				m_nServicePortForProxys;
+	private SDFSMaster		m_oSDFSMaster;	
+	
 	
 	
 	
@@ -33,7 +35,10 @@ public class Election {
 	public void SetLeader(String leaderId)
 	{
 		m_sLeaderId = leaderId;
-		m_eState = m_enumState.LEADERALIVE;
+		
+		//MASTER HAS TO FINISH		
+		if(Commons.SUCCESS == m_oSDFSMaster.MasterSetup())
+			m_eState = m_enumState.LEADERALIVE;
 	}
 		
 	public String GetLeaderId()
@@ -46,12 +51,13 @@ public class Election {
 		return m_oMembershipList.GetIP(m_sLeaderId);
 	}
 	
-	public void Initialize(Membership memberObject, Logger loggerObject, int servicePort) //References from controller
+	public void Initialize(Membership memberObject, Logger loggerObject, int servicePort, SDFSMaster master) //References from controller
 	{
 		//Initialize m_oMembershipList
 		m_oMembershipList = memberObject;
 		m_oLogger = loggerObject;
 		m_nServicePortForProxys = servicePort;
+		m_oSDFSMaster = master;
 	}
 	
 	public boolean IsLeaderAlive()

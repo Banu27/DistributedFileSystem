@@ -127,7 +127,7 @@ public class NodeFileMgr implements Runnable {
 	// best effort delete. This call is again forwarded from the thrift service.
 	// If the file is present in the table then delete the file and remove the 
 	// file from the table
-	public void DeleteFile(String sFileID)
+	public int DeleteFile(String sFileID)
 	{
 		m_oLockR.lock();
 		SDFSFile file_ = DNTable.get(sFileID);
@@ -141,8 +141,10 @@ public class NodeFileMgr implements Runnable {
 			DNTable.remove(sFileID);
 			m_oLockW.unlock();
 			m_oLogger.Info("Removed File: " + sFileID + "from the DNTable");
+			return Commons.SUCCESS;
 		} else {
 			m_oLogger.Warning("File not found for deletion: " + sFileID);
+			return Commons.FAILURE;
 		}
 	}
 	
@@ -162,6 +164,20 @@ public class NodeFileMgr implements Runnable {
 		return fileReport.toByteArray();
 	}
 	
+	public void RequestFileReport(String ReceiverIP)
+	{
+		if(DNTable.size() > 0)
+		{
+			FileReportProxy proxy = new FileReportProxy();
+			proxy.Initialize(ReceiverIP, m_oAccesor.GetFRPort(), m_oLogger);
+			try {
+				proxy.SendFileReport(GetFileReport());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return;
+	}
 	
 	public Set<String> GetFileList()
 	{

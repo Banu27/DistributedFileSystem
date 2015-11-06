@@ -91,8 +91,8 @@ public class CommandIfaceProxy implements Iface {
 		return m_oClient.AddFile(size, fileID, payload, replicate);
 	}
 
-	public void DeleteFile(String fileID) throws TException {
-		m_oClient.DeleteFile(fileID);
+	public int DeleteFile(String fileID) throws TException {
+		return m_oClient.DeleteFile(fileID);
 	}
 	
 	public void FileStorageAck(String filename, String incomingID) throws TException
@@ -120,6 +120,12 @@ public class CommandIfaceProxy implements Iface {
 	
 
 
+
+	
+	public void RequestFileReport(String receiverIp) throws TException
+	{
+		m_oClient.RequestFileReport(receiverIp);
+	}
 
 	
 }

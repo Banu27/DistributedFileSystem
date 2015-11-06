@@ -86,6 +86,11 @@ public class CommandIfaceImpl implements Iface {
 		
 	}
 	
+	public void RequestFileReport(String receiverIp) throws TException
+	{
+		m_oNodeMgr.RequestFileReport(receiverIp);
+	}
+	
 	public String RequestAddFile(String filename) throws TException
 	{
 		return m_oSDFSMaster.RequestAddFile(filename);
@@ -104,8 +109,8 @@ public class CommandIfaceImpl implements Iface {
 	}
 
 
-	public void DeleteFile(String fileID) throws TException {
-		m_oNodeMgr.DeleteFile(fileID);	
+	public int DeleteFile(String fileID) throws TException {
+		return m_oNodeMgr.DeleteFile(fileID);	
 	}
 
 	public String GetLeaderIP() throws TException {
