@@ -95,7 +95,8 @@ public class Controller {
 			return Commons.FAILURE;
 		}
 		//master init
-		if(  Commons.FAILURE == m_oSDFSMaster.Initialize(m_oMember, m_oLogger, m_oConfig.CmdPort(), m_oElection,m_oConfig))
+		if(  Commons.FAILURE == m_oSDFSMaster.Initialize(m_oMember, m_oLogger, m_oConfig.CmdPort(), 
+				m_oElection, m_oNodeMgr, m_oConfig))
 		{
 			m_oLogger.Error("Failed to initialize the Node Manager");
 			return Commons.FAILURE;

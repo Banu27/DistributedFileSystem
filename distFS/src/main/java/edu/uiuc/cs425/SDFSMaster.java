@@ -30,6 +30,7 @@ public class SDFSMaster implements Runnable {
 	private Election								m_oElection;
 	private ConfigAccessor							m_oConfig;
 	private Thread          						m_oReplicationMgrThread;
+	private NodeFileMgr								m_oNodeMgr;
 	
 	public SDFSMaster()
 	{
@@ -44,7 +45,8 @@ public class SDFSMaster implements Runnable {
 	}
 	
 	
-	public int Initialize(Membership membership, Logger logger, int servicePort, Election election,ConfigAccessor oConfig)
+	public int Initialize(Membership membership, Logger logger, int servicePort, Election election,
+			NodeFileMgr oNodeMgr, ConfigAccessor oConfig)
 	{
 		m_oMembership 				= membership;
 		m_oLogger		 			= logger;
@@ -54,6 +56,7 @@ public class SDFSMaster implements Runnable {
 		m_oLockR 					= m_oReadWriteLock.readLock();
 		m_oLockW 					= m_oReadWriteLock.writeLock();
 		m_oConfig					= oConfig;
+		m_oNodeMgr					= oNodeMgr;
 		return Commons.SUCCESS;
 	}
 	
@@ -71,26 +74,44 @@ public class SDFSMaster implements Runnable {
 		{
 			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 			String nodeId = iterator.next();
-			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(nodeId), m_nCommandServicePort, m_oLogger))
+			if(m_oMembership.GetIP(nodeId).equals(m_oMembership.GetIP(m_oMembership.UniqueId())))
 			{
-				try {
-					//Receiving the set of filenames for each node
-					Set<String> fileSetForID = ProxyTemp.RequestFileList(m_oMembership.GetIP(m_oMembership.UniqueId()));
-					for(String id : fileSetForID)
+				Set<String> fileSetForID = m_oNodeMgr.GetFileList();
+				for(String id : fileSetForID)
+				{
+					if(m_oFileLocationTable.containsKey(id))
 					{
-						if(m_oFileLocationTable.containsKey(id))
-						{
-							m_oFileLocationTable.get(id).add(nodeId);
-						}
-						else
-						{
-							m_oFileLocationTable.put(id, new HashSet<String>());
-							m_oFileLocationTable.get(id).add(nodeId);
-						}
+						m_oFileLocationTable.get(id).add(nodeId);
 					}
-				} catch (TException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					else
+					{
+						m_oFileLocationTable.put(id, new HashSet<String>());
+						m_oFileLocationTable.get(id).add(nodeId);
+					}
+				}
+				
+			} else {
+				if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(nodeId), m_nCommandServicePort, m_oLogger))
+				{
+					try {
+						//Receiving the set of filenames for each node
+						Set<String> fileSetForID = ProxyTemp.GetFileList();
+						for(String id : fileSetForID)
+						{
+							if(m_oFileLocationTable.containsKey(id))
+							{
+								m_oFileLocationTable.get(id).add(nodeId);
+							}
+							else
+							{
+								m_oFileLocationTable.put(id, new HashSet<String>());
+								m_oFileLocationTable.get(id).add(nodeId);
+							}
+						}
+					} catch (TException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}

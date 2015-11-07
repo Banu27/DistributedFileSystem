@@ -16,7 +16,6 @@ service CommandInterface{
 	list<string> GetAvailableFiles() 									#Client to Master   	
 	binary GetFile(1:string filename) 								#Client to node with a copy of the file
 	oneway void FileStorageAck(1:string filename, 2:string incomingID) 	#Node to Master after copy is made
-	set<string> RequestFileList(1:string receiverIp) 				#Master to NodeManager
 	oneway void RequestFileCopy(1:string filename, 2:string nodeID)		#Replica Manager to Node containing file	
 	set<string> GetFileList();											#Client to NodeMgr
 	string GetLeaderIP();

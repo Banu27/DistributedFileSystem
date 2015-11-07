@@ -117,10 +117,7 @@ public class CommandIfaceProxy implements Iface {
 		return m_oClient.GetFileList();
 	}
 
-	public Set<String> RequestFileList(String receiverIp) throws TException
-	{
-		return m_oClient.RequestFileList(receiverIp);
-	}
+
 
 	public void RequestFileCopy(String filename, String nodeID) throws TException
 	{

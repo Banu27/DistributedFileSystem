@@ -46,6 +46,7 @@ public class Membership implements Runnable{
 	private PrintWriter								    m_oWriter;
 	private ConfigAccessor 								m_oAccessor;
 	private	Election									m_oElection;
+	private int											m_nTableLogCount;
 	
 	public String UniqueId()
 	{
@@ -75,7 +76,7 @@ public class Membership implements Runnable{
 		}
 		
 		m_oLogger.Info(new String("Started Membership class"));
-		
+		m_nTableLogCount = 0;
 		return Commons.SUCCESS;
 	}
 		
@@ -192,7 +193,8 @@ public class Membership implements Runnable{
 			}
 		}
 		m_oLockW.unlock();
-		PrintListLogger(); 
+		if(m_nTableLogCount++ %10 == 0)
+			PrintListLogger(); 
 		return Commons.SUCCESS;
 	}
 	

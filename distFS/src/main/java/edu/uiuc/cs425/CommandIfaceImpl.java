@@ -91,10 +91,7 @@ public class CommandIfaceImpl implements Iface {
 		
 	}
 	
-	public Set<String> RequestFileList(String receiverIp) throws TException
-	{
-		return m_oNodeMgr.RequestFileList(receiverIp);
-	}
+	
 	
 	public String RequestAddFile(String filename) throws TException
 	{

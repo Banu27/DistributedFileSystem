@@ -153,14 +153,6 @@ public class NodeFileMgr implements Runnable {
 		return fileReport.toByteArray();
 	}
 	
-	//IS THIS NEEDED?? CAN GetFileList() take care of this? 
-	//Confusion because GetFileList is generally called by client
-	//I feel it would still work
-	public Set<String> RequestFileList(String ReceiverIP)
-	{
-		return DNTable.keySet();
-	}
-	
 	//THIS NEEDS TO BE DONE
 	public void RequestFileCopy(String filename, String nodeID)
 	{
