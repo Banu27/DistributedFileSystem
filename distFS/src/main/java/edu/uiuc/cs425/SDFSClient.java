@@ -104,12 +104,14 @@ public class SDFSClient {
 	
 	public int AddFile(String localPath, String SDFSName)
 	{
+		m_oLogger.Info("Addfile(): Updating proxy");
 		if(UpdateProxies() == Commons.FAILURE)
 		{
 			System.out.println("Unable to connect to SDFS");
 			return Commons.FAILURE;
 		}
-		
+		m_oLogger.Info("Addfile(): Finished Updating proxy");
+		m_oLogger.Info("Addfile(): Making the call to master for node info");
 		// make call to master
 		String sIP;
 		try {
@@ -119,13 +121,14 @@ public class SDFSClient {
 			return Commons.FAILURE;
 		}
 		// make call to the node
+		m_oLogger.Info("Addfile(): Creating the proxy to node " + sIP);
 		CommandIfaceProxy proxy = new CommandIfaceProxy();
 		if( Commons.FAILURE == proxy.Initialize(sIP, m_oConfig.CmdPort(), m_oLogger))
 		{
 			System.out.println("Unable to connect to " + sIP + " to add file. Try again");
 			return Commons.FAILURE;
 		}
-		
+		m_oLogger.Info("Addfile(): Creating a string buf of the file");
 		ByteBuffer payload = null;
 		FileInputStream fIn;
 		FileChannel fChan;
@@ -147,26 +150,29 @@ public class SDFSClient {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 			return Commons.FAILURE;
 		}
-		
+        m_oLogger.Info("Addfile(): Transfer buffer to node");
 		try {
 			int retVal = proxy.AddFile(fSize, SDFSName, payload, true);
 		} catch (TException e) {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 			return Commons.FAILURE;
 		}
+		m_oLogger.Info("Addfile(): Add file complete");
 		return Commons.SUCCESS;
 	}
 	
 	public void GetFile(String SDFSName, String localPath)
 	{
+		m_oLogger.Info("GetFile(): Updating proxy");
 		if(UpdateProxies() == Commons.FAILURE)
 		{
 			System.out.println("Unable to connect to SDFS");
 			return;
 		}
-		
+		m_oLogger.Info("GetFile(): Finished updating proxy");
 		//ask master for the nodes to get the file from
 		// make call to master
+		m_oLogger.Info("GetFile(): Asking master for the file location");
 		Set<String> sIPs;
 		try {
 			sIPs = m_oMasterProxy.GetFileLocations(SDFSName);
@@ -180,6 +186,7 @@ public class SDFSClient {
 		// make call to the node
 		for(String sIP: sIPs)
 		{
+			m_oLogger.Info("GetFile(): Call to " + sIP + " to retrieve the file");
 			CommandIfaceProxy proxy = new CommandIfaceProxy();
 			if( Commons.SUCCESS == proxy.Initialize(sIP, m_oConfig.CmdPort(), m_oLogger))
 			{
@@ -209,7 +216,7 @@ public class SDFSClient {
 				
 			}
 		}
-		
+		m_oLogger.Info("GetFile(): File copied to local filesystem");
 	}
 	
 	public void DeleteFile(String SDFSName)
