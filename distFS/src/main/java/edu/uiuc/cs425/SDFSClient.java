@@ -34,6 +34,7 @@ public class SDFSClient {
 	{
 		int counter = 0;
 		// continuous pinging for introducer to connect
+		m_oLogger.Info("Addfile(): Updating introducer proxy");
 		while(Commons.FAILURE == m_oIntoProxy.Initialize(m_oConfig.IntroducerIP(), m_oConfig.CmdPort(), m_oLogger))
 		{
 			if( counter++ > 100) 
@@ -52,6 +53,8 @@ public class SDFSClient {
 				return Commons.FAILURE;
 			}
 		}
+		
+		m_oLogger.Info("Addfile(): Checking if leader is alive");
 		//connected to introducer
 		int leaderCounter = 0;
 		try {
@@ -75,6 +78,7 @@ public class SDFSClient {
 			e1.printStackTrace();
 			return Commons.FAILURE;
 		}
+		m_oLogger.Info("Addfile(): Updating leader proxy");
 		int leaderInit = 0;
 		try {
 			while(Commons.FAILURE == m_oMasterProxy.Initialize(m_oIntoProxy.GetLeaderIP(), m_oConfig.CmdPort(), m_oLogger))
@@ -99,6 +103,7 @@ public class SDFSClient {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 			return Commons.FAILURE;
 		}
+		
 		return Commons.SUCCESS;
 	}
 	

@@ -34,11 +34,11 @@ public class CommandIfaceProxy implements Iface {
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
-			m_oLogger.Error(new String("Failed to initialize MemberIntro proxy")); //IP????
+			m_oLogger.Error(new String("Failed to initialize command proxy")); //IP????
 			return Commons.FAILURE;
 		}
 	    m_oClient = new CommandInterface.Client(new TBinaryProtocol(transport));
-	    m_oLogger.Info(new String("Created Member Proxy"));
+	    m_oLogger.Info(new String("Created command Proxy"));
 		return Commons.SUCCESS;
 	}
 
