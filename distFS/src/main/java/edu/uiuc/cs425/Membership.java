@@ -52,13 +52,9 @@ public class Membership implements Runnable{
 		return m_sUniqueId;
 	}
 	
-	public void setElectionObject(Election electionObject)
-	{
-		m_oElection = electionObject;
-	}
 	
 	
-	public int Initialize(ConfigAccessor oAccessor, Logger logger, String introducerIP)
+	public int Initialize(ConfigAccessor oAccessor, Logger logger, String introducerIP, Election oElection)
 	{
 		m_oAccessor = oAccessor;
 		m_oHmap 		= new HashMap<String, MembershipListStruct>();
@@ -69,7 +65,7 @@ public class Membership implements Runnable{
 		m_oLockW = m_oReadWriteLock.writeLock();
 		m_nTfail = m_oAccessor.FailureInterval();
 		m_oLogger = logger;
-		
+		m_oElection = oElection;
 		try {
 			m_sIP  = InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e1) {

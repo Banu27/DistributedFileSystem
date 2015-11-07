@@ -16,11 +16,14 @@ public class CommServer {
 	
 	private CommandIfaceImpl 		m_oCommandImpl;
 	private HeartBeatReceiver       m_oHBRecvr;
+	private FileReportRcvr			m_oFRRecvr;
 	private Thread 					m_oCmdServThread;
 	private Thread 					m_oHBRecvrThread;
+	private Thread 					m_oFRRecvrThread;
 	private Logger					m_oLogger;
 	
-	public int Initialize(int nHBPort, Membership oMember, Introducer oIntroducer, Logger oLogger, Election oElection)
+	public int Initialize(Membership oMember, Introducer oIntroducer, Election oElection, 
+			SDFSMaster oMaster, NodeFileMgr nodeMgr, Logger oLogger, ConfigAccessor oAccessor)
 	{
 		m_oCommandImpl 		= new CommandIfaceImpl(); //Why does the Introducer not have a hb recvr??
 		m_oLogger			= oLogger;
@@ -31,17 +34,30 @@ public class CommServer {
 		}
 		m_oCommandImpl.SetIntoObj(oIntroducer);
 		m_oCommandImpl.setElectionObj(oElection);
+		m_oCommandImpl.SetMasterObject(oMaster);
+		m_oCommandImpl.SetNMObj(nodeMgr);
 		
+		// heartbeat recvr
 		m_oHBRecvr 			= new HeartBeatReceiver();
-		if( Commons.FAILURE == m_oHBRecvr.Initialize(nHBPort,m_oLogger))
+		if( Commons.FAILURE == m_oHBRecvr.Initialize(oAccessor.HeartBeatPort(),m_oLogger))
 		{
 			m_oLogger.Error("Failed to initialize the heartbeat receiver");
 			return Commons.FAILURE;
 		}
 		m_oHBRecvr.SetMembershipObj(oMember);
 		
-		m_oCmdServThread  = null;
+		// filereport recvr
+		m_oFRRecvr  	= new FileReportRcvr();
+		if( Commons.FAILURE == m_oFRRecvr.Initialize(oAccessor.GetFRPort(),m_oLogger))
+		{
+			m_oLogger.Error("Failed to initialize the filereporter receiver");
+			return Commons.FAILURE;
+		}
+		m_oFRRecvr.SetMasterObj(oMaster);
+		
+		m_oCmdServThread    = null;
 		m_oHBRecvrThread    = null;
+		m_oFRRecvrThread    = null;
 		return Commons.SUCCESS;
 	}
 	
@@ -83,7 +99,24 @@ public class CommServer {
 		
 	}
 	
-	public void WaitForIntroServiceToStop()
+	public void StartFileReportRecvr()
+	{
+		m_oFRRecvrThread = new Thread(new Runnable() {           
+            public void run() { 
+            	try {
+        			m_oHBRecvr.StartService();
+        		} catch (Exception e)
+        		{
+        			m_oLogger.Error("Failed to start the heartbeat receiver");
+        			m_oLogger.Error(m_oLogger.StackTraceToString(e));
+        		}
+        		return;
+        	} 
+        });
+		m_oFRRecvrThread.start();
+	}
+	
+	public void WaitCmdServiceToStop()
 	{
 		try {
 			m_oCmdServThread.join();

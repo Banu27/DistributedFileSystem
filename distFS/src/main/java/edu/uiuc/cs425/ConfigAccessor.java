@@ -18,6 +18,7 @@ import java.io.IOException;
    <Failure interval="3000" checkPoint="" />
    <Logger path="" />
    <FileReport port="3425" interval="10000" />
+   <Replication interval="30000" factor="3" />
 </MembershipConfig>
  */
 
@@ -33,7 +34,8 @@ public class ConfigAccessor {
 	private int			m_nLossRate;
 	private int         m_nFRPort;
 	private int 		m_nFRInterval;
-	private int			m_nNumReplicas;
+	private int			m_nReplicationFactor;;
+	private int 		m_nReplicationCheckInterval;
 	
 	public ConfigAccessor()
 	{
@@ -95,9 +97,14 @@ public class ConfigAccessor {
 		return m_nFRInterval;
 	}
 	
-	public int GetNumberOfReplicas()
+	public int GetReplicationFactor()
 	{
-		return m_nNumReplicas;
+		return m_nReplicationFactor;
+	}
+	
+	public int GetReplicationCheckInterval()
+	{
+		return m_nReplicationCheckInterval;
 	}
 	
 	public int Initialize(String sXMLFilePath)
@@ -165,10 +172,11 @@ public class ConfigAccessor {
 				m_nFRPort  = Integer.parseInt(eElement.getAttribute("port"));
 				m_nFRInterval = Integer.parseInt(eElement.getAttribute("interval"));
 			}
-			else if (nNode.getNodeName() == "NumReplicas")
+			else if (nNode.getNodeName() == "Replication")
 			{
 				Element eElement = (Element) nNode;
-				m_nNumReplicas = Integer.parseInt(eElement.getAttribute("replicas"));
+				m_nReplicationFactor = Integer.parseInt(eElement.getAttribute("factor"));
+				m_nReplicationCheckInterval = Integer.parseInt(eElement.getAttribute("interval"));
 			}
 		}
 		return Commons.SUCCESS;

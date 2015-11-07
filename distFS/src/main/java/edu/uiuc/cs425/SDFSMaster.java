@@ -16,37 +16,47 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import edu.uiuc.cs425.FileMsg.FileReport;
 
 
-public class SDFSMaster {
+public class SDFSMaster implements Runnable {
 	
 	//Hash set does not guarantee any order. 
 	//This means we cannot say that the first value is primary copy etc.
 	private HashMap<String,HashSet<String>> 		m_oFileLocationTable;
 	private Membership 								m_oMembership;
 	private Logger									m_oLogger;
-	private String									m_sMyID;
 	private ReentrantReadWriteLock 					m_oReadWriteLock; 
 	private Lock 									m_oLockR; 
 	private Lock 									m_oLockW; 
 	private int										m_nCommandServicePort;
 	private Election								m_oElection;
+	private ConfigAccessor							m_oConfig;
+	private Thread          						m_oReplicationMgrThread;
 	
-	public void Initialize(Membership membership, Logger logger, int servicePort, Election election)
+	public SDFSMaster()
 	{
-		m_oMembership = membership;
-		m_oLogger = logger;
-		m_nCommandServicePort = servicePort;
-		m_oElection = election;
-		m_sMyID = m_oMembership.UniqueId(); //Ensure this is working
-		m_oReadWriteLock = new ReentrantReadWriteLock();
-		m_oLockR = m_oReadWriteLock.readLock();
-		m_oLockW = m_oReadWriteLock.writeLock();
+		m_oFileLocationTable = new HashMap<String,HashSet<String>>();
 		
 	}
 	
-	public HashMap<String,HashSet<String>> GetFileLocationTable()
+	public void StartReplicationMgr()
 	{
-		return m_oFileLocationTable;
+		m_oReplicationMgrThread =  new Thread(this);
+		m_oReplicationMgrThread.start();
 	}
+	
+	
+	public int Initialize(Membership membership, Logger logger, int servicePort, Election election,ConfigAccessor oConfig)
+	{
+		m_oMembership 				= membership;
+		m_oLogger		 			= logger;
+		m_nCommandServicePort 		= servicePort;
+		m_oElection 				= election;
+		m_oReadWriteLock 			= new ReentrantReadWriteLock();
+		m_oLockR 					= m_oReadWriteLock.readLock();
+		m_oLockW 					= m_oReadWriteLock.writeLock();
+		m_oConfig					= oConfig;
+		return Commons.SUCCESS;
+	}
+	
 	
 	public int MasterSetup()
 	{
@@ -65,7 +75,7 @@ public class SDFSMaster {
 			{
 				try {
 					//Receiving the set of filenames for each node
-					Set<String> fileSetForID = ProxyTemp.RequestFileList(m_oMembership.GetIP(m_sMyID));
+					Set<String> fileSetForID = ProxyTemp.RequestFileList(m_oMembership.GetIP(m_oMembership.UniqueId()));
 					for(String id : fileSetForID)
 					{
 						if(m_oFileLocationTable.containsKey(id))
@@ -84,6 +94,10 @@ public class SDFSMaster {
 				}
 			}
 		}
+		
+		// also start the replication manager
+		StartReplicationMgr();
+		
 		return Commons.SUCCESS;
 	}
 
@@ -178,5 +192,110 @@ public class SDFSMaster {
 		m_oLockW.unlock();
 	}
 	
-	
+	void CheckReplication() {
+		// Initial sleep
+		try {
+			Thread.sleep(3000); // Where is this time defined??
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			m_oLogger.Error(m_oLogger.StackTraceToString(e1));
+		}
+
+		while (true) {
+
+			// For interval uniformity
+			long start_time = System.nanoTime();
+
+			// Iterator for each element in File Loc
+			m_oLockR.lock();
+			Iterator<Entry<String, HashSet<String>>> iterator = m_oFileLocationTable.entrySet().iterator();
+			while (iterator.hasNext()) {
+				// The element - Filename and containing node list
+				Entry<String, HashSet<String>> element = iterator.next();
+				String Filename = element.getKey();
+
+				// Checking node list
+				if (element.getValue().size() != m_oConfig.GetReplicationFactor() && !element.getValue().isEmpty()) {
+					int numberOfReplicasToBeMade = element.getValue().size() - m_oConfig.GetReplicationFactor();
+					Random randNumberGenerator = new Random();
+
+					// Getting all the member ids so as to choose ids randomly
+					// for replication
+					ArrayList<String> IDs = m_oMembership.GetMemberIds();
+
+					// New vector to store existing ids
+					Vector<String> idPresent = new Vector<String>(); // Should
+																		// be a
+																		// list
+																		// instead
+
+					for (String id : IDs) {
+						idPresent.addElement(id);
+						IDs.remove(id);
+					}
+					for (int i = 0; i < numberOfReplicasToBeMade; i++) {
+						// A random id where copy is to be made
+						String copyIp = m_oMembership.GetIP(IDs.get(randNumberGenerator.nextInt(IDs.size())));
+						CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+
+						// Copy is made from idPresent[0]
+						if (Commons.SUCCESS == ProxyTemp.Initialize(idPresent.get(0), m_oConfig.CmdPort(), m_oLogger)) {
+							try {
+								ProxyTemp.RequestFileCopy(Filename, copyIp);
+							} catch (TException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						// Call Add file here
+
+						// Removing the copyIp from the list to avoid repetition
+						IDs.remove(copyIp);
+					}
+				}
+				if (element.getValue().size() > m_oConfig.GetReplicationFactor()) {
+					HashSet<String> listOfIds = element.getValue();
+
+					Iterator<String> iteratorElemToBeDeleted = listOfIds.iterator();
+
+					while (listOfIds.size() > m_oConfig.GetReplicationFactor()) {
+						if (iteratorElemToBeDeleted.hasNext()) {
+							String id = iteratorElemToBeDeleted.next();
+							// Delete file at iterator.next()
+
+							CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+
+							// Copy is made from idPresent[0]
+							if (Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(id), m_oConfig.CmdPort(),
+									m_oLogger))
+								try {
+									ProxyTemp.DeleteFile(Filename);
+								} catch (TException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							listOfIds.remove(id);
+							element.getValue().remove(id);
+						}
+					}
+
+				}
+
+			}
+			m_oLockR.unlock();
+			long diff = (System.nanoTime() - start_time) / 1000000;
+			try {
+				Thread.sleep(m_oConfig.GetReplicationCheckInterval() - diff);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				m_oLogger.Error(m_oLogger.StackTraceToString(e));
+				return;
+			}
+
+		}
+	}
+
+	public void run() {
+		CheckReplication();
+	}
 }

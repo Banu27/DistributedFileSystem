@@ -36,31 +36,23 @@ public class NodeFileMgr implements Runnable {
 	private Lock 										m_oLockR; 
 	private Lock 										m_oLockW; 
 	
-	public int Initialize(Logger logger, ConfigAccessor accessor, String myIP)
+	
+	public NodeFileMgr()
+	{
+		DNTable 			= new HashMap<String,SDFSFile>();
+		m_oReadWriteLock 	= new ReentrantReadWriteLock();
+		m_oLockR 			= m_oReadWriteLock.readLock();
+		m_oLockW 			= m_oReadWriteLock.writeLock();
+	}
+	
+	public int Initialize(Logger logger, ConfigAccessor accessor, String myIP, Election election, Membership membership)
 	{
 		m_oLogger 		= logger;
 		m_oAccesor 		= accessor;
 		m_sMyIP			= myIP;
-		
+		m_oElection 	= election;
+		m_oMemberList   = membership;
 		return Commons.SUCCESS;
-	}
-	
-	public void setElectionObj(Election obj)
-	{
-		m_oElection = obj;
-	}
-	
-	public void setMembershipObjt(Membership obj)
-	{
-		m_oMemberList = obj;
-	}
-	
-	NodeFileMgr()
-	{
-		DNTable = new HashMap<String,SDFSFile>();
-		m_oReadWriteLock = new ReentrantReadWriteLock();
-		m_oLockR = m_oReadWriteLock.readLock();
-		m_oLockW = m_oReadWriteLock.writeLock();
 	}
 	
 	

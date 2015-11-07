@@ -49,9 +49,13 @@ public class App
 
 		
 		
-		m_oController.StartHB();
+		m_oController.StartMemberlistHB();
+		
+		m_oController.StartFRHB();
 		
 		m_oController.StartFailureDetection();
+		
+		m_oController.StartReplicationMgr();
 		
 		m_oController.UserInputImpl();
 		

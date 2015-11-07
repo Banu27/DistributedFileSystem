@@ -35,6 +35,7 @@ public class Election {
 	public void SetLeader(String leaderId)
 	{
 		m_sLeaderId = leaderId;
+		m_eState = m_enumState.LEADERALIVE;
 	}
 	
 	public void SetNewLeader(String leaderId)
@@ -148,6 +149,6 @@ public class Election {
 		
 	public void ReceiveElectionMessage()
 	{
-		SendElectionMessages();
+		StartElection();
 	}
 }

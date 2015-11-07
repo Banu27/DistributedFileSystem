@@ -22,24 +22,27 @@ public class Controller {
 	private String 			m_sNodeType;
 	private Thread          m_HBThread;
 	private Thread 			m_FailDetThread;
+	private Thread          m_FRHBThread;
 	private Logger 			m_oLogger;
 	private Scanner 		m_oUserInput;
 	private String 			introIP;
 	private String 			hostIP; //What is this? - Banu
 	private Election		m_oElection;
 	private SDFSMaster		m_oSDFSMaster;
+	private NodeFileMgr     m_oNodeMgr;
 	
 	public Controller()
 	{
-		m_oConfig 		= new ConfigAccessor();
-		m_oCommServ		= new CommServer();
-		m_oMember       = new Membership();
-		m_oIntroducer   = null;
-		m_oHeartbeat    = new Heartbeat();
-		m_oLogger		= new Logger();
-		m_oUserInput    = new Scanner(System.in);
-		m_oElection 	= new Election();
-		m_oSDFSMaster	= new SDFSMaster();
+		m_oConfig 			= new ConfigAccessor();
+		m_oCommServ			= new CommServer();
+		m_oMember       	= new Membership();
+		m_oIntroducer   	= new Introducer();
+		m_oHeartbeat    	= new Heartbeat();
+		m_oLogger			= new Logger();
+		m_oUserInput    	= new Scanner(System.in);
+		m_oElection 		= new Election();
+		m_oSDFSMaster		= new SDFSMaster();
+		m_oNodeMgr      	= new NodeFileMgr();
 	}
 	
 	public int Initialize(String sXML)
@@ -79,20 +82,40 @@ public class Controller {
 		m_oLogger.Info("Nodetype: " + m_sNodeType);
 		
 		//Membership object of class initializing here
-		m_oMember.Initialize(m_oConfig, m_oLogger, introIP);
+		if( Commons.FAILURE == m_oMember.Initialize(m_oConfig, m_oLogger, introIP, m_oElection) )
+		{
+			m_oLogger.Error("Failed to initialize the membership object");
+			return Commons.FAILURE;
+		}
+		// nodemanager init
+		if ( Commons.FAILURE == m_oNodeMgr.Initialize(m_oLogger, m_oConfig, m_oMember.GetIP(m_oMember.UniqueId()),
+				m_oElection,m_oMember))
+		{
+			m_oLogger.Error("Failed to initialize the Node Manager");
+			return Commons.FAILURE;
+		}
+		//master init
+		if(  Commons.FAILURE == m_oSDFSMaster.Initialize(m_oMember, m_oLogger, m_oConfig.CmdPort(), m_oElection,m_oConfig))
+		{
+			m_oLogger.Error("Failed to initialize the Node Manager");
+			return Commons.FAILURE;
+		}
 		
-		//Initializing Election object
-		//INITIALIZE MASTER BEFORE INITIALIZE ELECTION
+		//Initializing Election object- after master init
 		m_oElection.Initialize(m_oMember,m_oLogger,m_oConfig.CmdPort(),m_oSDFSMaster);
-		
-		m_oMember.setElectionObject(m_oElection);
 		
 		//CommServer object initializing here
 		//ToDo - Use CommServer here for all and not just intoducer
 		
-		m_oIntroducer = new Introducer(m_oMember, m_oLogger, m_oElection);
+		if ( Commons.FAILURE == m_oIntroducer.Initialize(m_oMember, m_oLogger, m_oElection,m_oConfig) )
+		{
+			m_oLogger.Error("Failed to initialize the communication server");
+			return Commons.FAILURE;
+			
+		}
 		
-		if(Commons.FAILURE == m_oCommServ.Initialize(m_oConfig.HeartBeatPort(), m_oMember, m_oIntroducer, m_oLogger, m_oElection))
+		if(Commons.FAILURE == m_oCommServ.Initialize(m_oMember, m_oIntroducer, m_oElection, 
+				m_oSDFSMaster, m_oNodeMgr,m_oLogger,m_oConfig))
 		{
 			m_oLogger.Error("Failed to initialize the communication server");
 			return Commons.FAILURE;
@@ -114,15 +137,22 @@ public class Controller {
 		m_oCommServ.StartCmdService(m_oConfig.CmdPort()); //Giving introducer port here
 		// bring up the heartbeat receiver
 		m_oCommServ.StartHeartBeatRecvr();
+		//breing up the file report recvr
+		m_oCommServ.StartFileReportRecvr();
 	}
 	
-	public void StartHB()
+	public void StartMemberlistHB()
 	{
 		// start heart beating thread
 		m_HBThread = new Thread(m_oHeartbeat);
 		m_HBThread.start();
-				
-				
+	}
+	
+	public void StartFRHB()
+	{
+		//start filereport sender thread
+		m_FRHBThread = new Thread(m_oNodeMgr);
+		m_FRHBThread.start();
 	}
 	
 	public void StartFailureDetection()
@@ -132,6 +162,15 @@ public class Controller {
 		m_FailDetThread.start();
 	}
 	
+	
+	public void StartReplicationMgr()
+	{
+		// check if the current node is the leader. If yes start replication check thread
+		if( hostIP.equals(m_oElection.GetLeaderIP()))
+		{
+			m_oSDFSMaster.StartReplicationMgr();
+		}
+	}
 	
 	public void LeaveList()
 	{
@@ -163,7 +202,7 @@ public class Controller {
 			m_oElection.SetLeader(m_oMember.UniqueId());
 			RecoverFromCheckPoint();
 		}
-		if(m_sNodeType.equals(Commons.NODE_PARTICIPANT))
+		else if(m_sNodeType.equals(Commons.NODE_PARTICIPANT))
 		{
 			CommandIfaceProxy proxy = new CommandIfaceProxy();
 			int counter = 0;
@@ -242,89 +281,83 @@ public class Controller {
 				return Commons.FAILURE;
 			}
 		}
-		
-		// recover from checkpoint
 		return Commons.SUCCESS;
 	}
 	
 	private int RecoverFromCheckPoint()
 	{
-		if(m_sNodeType.equals(Commons.NODE_INTROCUDER))
+		
+		File fCP = new File(m_oConfig.GetCPPath());
+		if(fCP.exists())
 		{
-			File fCP = new File(m_oConfig.GetCPPath());
-			if(fCP.exists())
+			System.out.println("Checkpoint data found. Do you want to recover? Yes/No");
+			String sInput = m_oUserInput.nextLine();
+			if(sInput.equalsIgnoreCase("yes"))
 			{
-				System.out.println("Checkpoint data found. Do you want to recover? Yes/No");
-				String sInput = m_oUserInput.nextLine();
-				if(sInput.equalsIgnoreCase("yes"))
-				{
-					try {
-						BufferedReader brCP = new BufferedReader(new FileReader(m_oConfig.GetCPPath()));
-						String text = brCP.readLine();
-						String[] strArray = text.split(",");
-						m_oHeartbeat.SendHB(strArray);
-						for (String sIP: strArray) {  
-							CommandIfaceProxy proxy = new CommandIfaceProxy();
-							if(Commons.SUCCESS == proxy.Initialize(sIP, m_oConfig.CmdPort(), m_oLogger))
+				try {
+					BufferedReader brCP = new BufferedReader(new FileReader(m_oConfig.GetCPPath()));
+					String text = brCP.readLine();
+					String[] strArray = text.split(",");
+					m_oHeartbeat.SendHB(strArray);
+					for (String sIP: strArray) {  
+						CommandIfaceProxy proxy = new CommandIfaceProxy();
+						if(Commons.SUCCESS == proxy.Initialize(sIP, m_oConfig.CmdPort(), m_oLogger))
+						{
+							int counter = 0;
+							while(!proxy.IsLeaderAlive())
 							{
-								int counter = 0;
-								while(!proxy.IsLeaderAlive())
+								if( counter++ > 10) 
 								{
-									if( counter++ > 10) 
-									{
-										m_oLogger.Error("Failed to receive leader from selected node.");
-										//Breaking from this while loop
-										break;
-									}
-									
-									try {
-										Thread.sleep(5000);
-									} catch (InterruptedException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-									m_oLogger.Warning("Leader not alive now. Trying in 5 secs");									
+									m_oLogger.Error("Failed to receive leader from selected node.");
+									//Breaking from this while loop
+									break;
 								}
-								m_oElection.SetLeader(proxy.GetLeaderId());
-								//Breaking from for loop
-								break;
-							}
 								
-
-							
+								try {
+									Thread.sleep(5000);
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								m_oLogger.Warning("Leader not alive now. Trying in 5 secs");									
+							}
+							m_oElection.SetLeader(proxy.GetLeaderId());
+							//Breaking from for loop
+							break;
 						}
-
 							
-						
-					} catch (FileNotFoundException e) {
-						m_oLogger.Error(m_oLogger.StackTraceToString(e));
-						return Commons.FAILURE;
-					} catch (IOException e) {
-						m_oLogger.Error(m_oLogger.StackTraceToString(e));
-						return Commons.FAILURE;
-					} catch (TException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
-				} else if(sInput.equalsIgnoreCase("no"))
-				{
-					System.out.println("Not recovering");
-					// do nothing as of now
-				} else
-				{
-					System.out.println("Invalid input. Not recovering");
+					
+					// reset the serial number in intorducer object from checkpoint
+					brCP = new BufferedReader(new FileReader(m_oConfig.GetCPPath() + "_SNO"));
+					int s_no = Integer.parseInt(brCP.readLine());
+					m_oIntroducer.setSno(s_no);
+				} catch (FileNotFoundException e) {
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
+					return Commons.FAILURE;
+				} catch (IOException e) {
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
+					return Commons.FAILURE;
+				} catch (TException e) {
+					e.printStackTrace();
 				}
+			} else if(sInput.equalsIgnoreCase("no"))
+			{
+				System.out.println("Not recovering");
+				// do nothing as of now
+			} else
+			{
+				System.out.println("Invalid input. Not recovering");
 			}
 		}
+		
 		return Commons.SUCCESS;
 	}
 	
 	public void WaitForServicesToEnd()
 	{
-		if( m_sNodeType == Commons.NODE_INTROCUDER)
-		{
-			m_oCommServ.WaitForIntroServiceToStop();
-		}
+		m_oCommServ.WaitCmdServiceToStop();
+		
 		
 		m_oCommServ.WaitForHBRecvrToStop();
 		
