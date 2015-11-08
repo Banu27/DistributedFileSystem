@@ -223,8 +223,10 @@ public class SDFSMaster implements Runnable {
 	{
 		HashSet<String> nodeList = m_oFileLocationTable.get(Filename);
 		Set<String> nodeIps = new HashSet<String>();
-		for(String id: nodeList)
-			nodeIps.add(m_oMembership.GetIP(id));
+		if(nodeList != null) {
+			for(String id: nodeList)
+				nodeIps.add(m_oMembership.GetIP(id));
+		}
 		return nodeIps;		
 	}
 	

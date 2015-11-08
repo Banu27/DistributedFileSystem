@@ -272,6 +272,7 @@ public class SDFSClient {
 			else
 				System.out.println("No files in the node");
 		} catch (TException e) {
+			System.out.println("Unable to find files in the node");
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 		}
 		
@@ -311,7 +312,7 @@ public class SDFSClient {
 			
 		} catch (TException e) {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
-			System.out.println("Connection error while trying to locate files");
+			System.out.println("File not found");
 		}
 	}
 }
