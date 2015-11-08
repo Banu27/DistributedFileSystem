@@ -297,7 +297,7 @@ public class Membership implements Runnable{
 						}
 						
 						// if leader then send request to master to remvoe the node from the file list
-						if( m_oElection.IsLeaderAlive() && m_oElection.GetLeaderId().equals(m_sUniqueId))
+						if( m_oElection.IsLeaderAlive() && m_sUniqueId.equals(m_oElection.GetLeaderId()))
 						{
 							m_oLogger.Info("Sending request to master to remove the failed node from the file loc table");
 							m_oMaster.RemoveNodeFromFileLocTable(memberStruct.GetUniqueId());
