@@ -139,9 +139,10 @@ public class SDFSMaster implements Runnable {
 			keyVal+= " : ";
 			keyVal += currFile.getValue().toString();
 			keyVal+= '\n';
+			out+=keyVal;
 		}
 		m_oLockR.unlock();
-		out += "=======End SDFS File Info=======";
+		out += "\n=======End SDFS File Info=======";
 		return out;
 	}
 	
@@ -275,7 +276,7 @@ public class SDFSMaster implements Runnable {
 
 			// For interval uniformity
 			long start_time = System.nanoTime();
-
+			m_oLogger.Info("Replication check");
 			// Iterator for each element in File Loc
 			m_oLockW.lock();
 			Iterator<Entry<String, HashSet<String>>> iterator = m_oFileLocationTable.entrySet().iterator();
@@ -365,10 +366,7 @@ public class SDFSMaster implements Runnable {
 		
 					}
 				}
-				else
-				{
-					m_oLogger.Info("Replication: nothing to do during this cycle");
-				}
+				
 
 			}
 			m_oLockW.unlock();

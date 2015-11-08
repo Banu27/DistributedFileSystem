@@ -115,7 +115,8 @@ public class NodeFileMgr implements Runnable {
 					failcount++;
 				}
 			}
-			m_oLogger.Error("Failed to create replicas for " + file_.m_sFileID + " failed replicas=" + Integer.toString(failcount));
+			if(failcount > 0)
+				m_oLogger.Error("Failed to create replicas for " + file_.m_sFileID + " failed replicas=" + Integer.toString(failcount));
 			// TODO: try again to add files to fail count number of nodes.
 			
 		}

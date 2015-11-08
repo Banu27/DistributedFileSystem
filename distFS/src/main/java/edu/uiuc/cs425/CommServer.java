@@ -101,10 +101,10 @@ public class CommServer {
 		m_oFRRecvrThread = new Thread(new Runnable() {           
             public void run() { 
             	try {
-        			m_oHBRecvr.StartService();
+            		m_oFRRecvr.StartService();
         		} catch (Exception e)
         		{
-        			m_oLogger.Error("Failed to start the heartbeat receiver");
+        			m_oLogger.Error("Failed to start the file report receiver");
         			m_oLogger.Error(m_oLogger.StackTraceToString(e));
         		}
         		return;
