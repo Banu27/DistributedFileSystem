@@ -82,7 +82,7 @@ public class Heartbeat implements Runnable {
 		try {
 			buf = m_oMship.GetMemberList(); //Does this contain only 1 member - introducer??
 		} catch (Exception e1) {
-			m_oLogger.Error(m_oLogger.StackTraceToString(e));
+			m_oLogger.Error(m_oLogger.StackTraceToString(e1));
 			return;
 		}
 		for (String sIP: sIPs) {  
