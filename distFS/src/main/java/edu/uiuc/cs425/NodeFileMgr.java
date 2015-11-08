@@ -15,7 +15,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.io.FileUtils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.thrift.TException;
 
 import edu.uiuc.cs425.FileMsg.FileReport;
@@ -52,6 +54,13 @@ public class NodeFileMgr implements Runnable {
 		m_sMyIP			= myIP;
 		m_oElection 	= election;
 		m_oMemberList   = membership;
+		// clean the data dir everytime
+		try {
+			FileUtils.cleanDirectory(new File(accessor.SDFSDataDir()));
+		} catch (IOException e) {
+			m_oLogger.Warning(m_oLogger.StackTraceToString(e));
+		}
+		
 		return Commons.SUCCESS;
 	}
 	
