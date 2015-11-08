@@ -203,7 +203,7 @@ public class ConfigAccessor {
 				
 				m_sSDFSDataDir		= eElement.getAttribute("dataDir");
 				m_sClientSrcDir 	= eElement.getAttribute("clientSrcDir");
-				m_sClientDestDir 	= eElement.getAttribute("m_sClientDestDir");
+				m_sClientDestDir 	= eElement.getAttribute("clientDestDir");
 			}
 		}
 		return Commons.SUCCESS;
