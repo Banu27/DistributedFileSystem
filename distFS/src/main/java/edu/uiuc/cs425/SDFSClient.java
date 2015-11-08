@@ -189,7 +189,10 @@ public class SDFSClient {
 		Set<String> sIPs;
 		try {
 			sIPs = m_oMasterProxy.GetFileLocations(SDFSName);
-			
+			if(sIPs.size() == 0) {
+				System.out.println("File not found");
+				return;
+			}
 		} catch (TException e) {
 			System.out.println("Unable to connect to leader. Try Again");
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
@@ -284,7 +287,10 @@ public class SDFSClient {
 		
 		try {
 			Set<String> ips = m_oMasterProxy.GetFileLocations(SDFSFileName);
-			System.out.println(ips);
+			if(ips.size() > 0)
+				System.out.println(ips);
+			else
+				System.out.println("File not found");
 			
 		} catch (TException e) {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
