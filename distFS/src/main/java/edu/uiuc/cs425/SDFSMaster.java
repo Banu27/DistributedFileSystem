@@ -171,7 +171,7 @@ public class SDFSMaster implements Runnable {
 		m_oFileLocationTable.put(FileId, new HashSet<String>());
 		m_oLockW.unlock();
 		ArrayList<String> IDs = m_oMembership.GetMemberIds();
-		Random randomNumberGenerator = new Random();
+		Random randomNumberGenerator = new Random(m_oMembership.GetMyLocalTime());
 		return m_oMembership.GetIP(IDs.get(randomNumberGenerator.nextInt(IDs.size())));
 	}
 				

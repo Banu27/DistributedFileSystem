@@ -99,7 +99,7 @@ public class NodeFileMgr implements Runnable {
 			ArrayList<String> vUniqueIds = m_oMemberList.GetMemberIds();
 			String myID = m_oMemberList.UniqueId();
 			vUniqueIds.remove(myID);
-			Set<Integer> rands = Commons.RandomK(Math.min(2, vUniqueIds.size()),vUniqueIds.size(),m_oMemberList.GetMyLocalTime());
+			Set<Integer> rands = Commons.RandomK(Math.min(m_oAccesor.GetReplicationFactor() - 1, vUniqueIds.size()),vUniqueIds.size(),m_oMemberList.GetMyLocalTime());
 			int failcount = 0;
 			for (Integer i : rands)
 			{
@@ -164,15 +164,37 @@ public class NodeFileMgr implements Runnable {
 	}
 	
 	//THIS NEEDS TO BE DONE
-	public void RequestFileCopy(String filename, String nodeID)
+	public void RequestFileCopy(String filename, String nodeIP)
 	{
-		//Write the implementation
-		//Copy file from current node to the nodeID
+		
 		CommandIfaceProxy proxy = new CommandIfaceProxy();
-		proxy.Initialize(m_oMemberList.GetIP(m_oMemberList.GetIP(nodeID)), m_oAccesor.CmdPort(), m_oLogger);
-		//try {
-		//	proxy.AddFile(file_.m_nSize, file_.m_sFileID, file_.GetBuffer(), false);
-		//}
+		
+		
+		if( Commons.SUCCESS == proxy.Initialize(nodeIP, m_oAccesor.CmdPort(), m_oLogger))
+		{
+			// read the file
+			SDFSFile file_ = DNTable.get(filename);
+			if(file_ != null)
+			{
+				try {
+					proxy.AddFile(file_.m_nSize, file_.m_sFileID, file_.GetBuffer(), false);
+				} catch (TException e) {
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
+					
+				} catch (IOException e) {
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
+				}
+		
+			} else {
+				m_oLogger.Error("Unable to find file: " + filename + " in the node");
+			}
+		} else
+		{
+			m_oLogger.Error("Unable to connect to " + nodeIP + " make copy");
+		}
+		
+		
+		
 	}
 	
 	public Set<String> GetFileList()
