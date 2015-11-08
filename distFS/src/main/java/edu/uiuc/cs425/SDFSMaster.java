@@ -176,8 +176,11 @@ public class SDFSMaster implements Runnable {
 	//Using set return type because of thrift and existing hashset in hashmap
 	Set<String> GetFileLocations(String Filename) 	//Thrift
 	{
-		HashSet<String> NodeList = m_oFileLocationTable.get(Filename);
-		return NodeList;		
+		HashSet<String> nodeList = m_oFileLocationTable.get(Filename);
+		HashSet<String> nodeIps = new HashSet<String>();
+		for(String id: nodeList)
+			nodeIps.add(m_oMembership.GetIP(id));
+		return nodeIps;		
 	}
 	
 	//From the first file add - received from the primary copy
