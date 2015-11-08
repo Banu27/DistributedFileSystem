@@ -53,7 +53,7 @@ public class HeartBeatReceiver {
          {
 			 try {
 				m_socket.receive(m_packet);
-				m_oLogger.Info("BENCHMARK: Message count: " + String.valueOf(++m_nCounter));
+				//m_oLogger.Info("BENCHMARK: Message count: " + String.valueOf(++m_nCounter));
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				m_oLogger.Error(m_oLogger.StackTraceToString(e));

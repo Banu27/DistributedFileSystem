@@ -149,7 +149,7 @@ public class Membership implements Runnable{
 	{
 		MemberList incomingList = ObjectFromByteBuffer(incomingListBuffer);
 		
-		m_oLogger.Info(new String("Merging list")); //Needed?
+		//m_oLogger.Info(new String("Merging list")); //Needed?
 		//Write lock 
 		m_oLockW.lock();
 		for(Member incomingMember : incomingList.getMemberList())
@@ -267,7 +267,7 @@ public class Membership implements Runnable{
 			long start_time = System.nanoTime();
 			Set<Entry<String, MembershipListStruct>> set = m_oHmap.entrySet();
 		    Iterator<Entry<String, MembershipListStruct>> iterator = set.iterator();
-		    m_oLogger.Info("BENCHMARK: Failure check count: " + String.valueOf(m_nFailChk));
+		    //m_oLogger.Info("BENCHMARK: Failure check count: " + String.valueOf(m_nFailChk));
 		    if(m_nFailChk % 5 == 0)
 		    	sIps.clear();
 		    while(iterator.hasNext()) {

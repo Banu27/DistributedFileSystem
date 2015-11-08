@@ -54,7 +54,7 @@ public class Heartbeat implements Runnable {
 				
 		Set<Integer> rands = Commons.RandomK(currGossip,size,m_oMship.GetMyLocalTime());
 		// hack. always ask for k+ 1 and remove self or someother node
-		m_oLogger.Info("Heartbeat count: " + String.valueOf(++m_nHBCount));
+		// m_oLogger.Info("Heartbeat count: " + String.valueOf(++m_nHBCount));
 		for (Integer i : rands)
 		{
 			String ip = m_oMship.GetIP(vUniqueIds.get(i));
