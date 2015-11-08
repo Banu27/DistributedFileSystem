@@ -244,7 +244,7 @@ public class SDFSClient {
 		}
 		
 		try {
-			m_oMasterProxy.DeleteFile(SDFSName);
+			m_oMasterProxy.DeleteFileMaster(SDFSName);
 		} catch (TException e) {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 			System.out.println("Connection error while deleting files");
