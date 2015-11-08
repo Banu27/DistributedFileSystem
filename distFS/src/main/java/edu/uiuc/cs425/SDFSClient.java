@@ -277,6 +277,23 @@ public class SDFSClient {
 		
 	}
 	
+	public void GetFullInfo()
+	{
+		if(UpdateProxies() == Commons.FAILURE)
+		{
+			System.out.println("Unable to connect to SDFS");
+			return;
+		}
+		try {
+			String out = m_oMasterProxy.GetFullInfo();
+			System.out.println(out);
+			
+		} catch (TException e) {
+			m_oLogger.Error(m_oLogger.StackTraceToString(e));
+			System.out.println("Connection error while trying to locate files");
+		}
+	}
+	
 	public void FileLoc(String SDFSFileName)
 	{
 		if(UpdateProxies() == Commons.FAILURE)

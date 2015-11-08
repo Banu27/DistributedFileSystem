@@ -128,6 +128,10 @@ public class CommandIfaceProxy implements Iface {
 		
 		m_oClient.DeleteFileMaster(filename);
 	}
+
+	public String GetFullInfo() throws TException {
+		return m_oClient.GetFullInfo();
+	}
 	
 	
 }

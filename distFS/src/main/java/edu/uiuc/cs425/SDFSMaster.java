@@ -122,6 +122,29 @@ public class SDFSMaster implements Runnable {
 	}
 
 	
+	
+	
+	public String GetFileInfo() //List used because of thrift
+	{
+		String out = new String();
+		out += "=======Begin SDFS File Info=======";
+		m_oLockR.lock();
+		Set<Entry<String, HashSet<String>>> iteratorSet = m_oFileLocationTable.entrySet();
+		Iterator<Entry<String, HashSet<String>>> iterator = iteratorSet.iterator();
+		while(iterator.hasNext())
+		{
+			Entry<String, HashSet<String>> currFile = iterator.next();
+			String keyVal;
+			keyVal = currFile.getKey();
+			keyVal+= " : ";
+			keyVal += currFile.getValue().toString();
+			keyVal+= '\n';
+		}
+		m_oLockR.unlock();
+		out += "=======End SDFS File Info=======";
+		return out;
+	}
+	
 	public List<String> GetAvailableFiles() //List used because of thrift
 	{
 		m_oLockR.lock();
@@ -235,6 +258,7 @@ public class SDFSMaster implements Runnable {
 			}
 		}
 		m_oLockW.unlock();
+		m_oLogger.Info(GetFileInfo());
 	}
 	
 	void CheckReplication() {
@@ -341,9 +365,14 @@ public class SDFSMaster implements Runnable {
 		
 					}
 				}
+				else
+				{
+					m_oLogger.Info("Replication: nothing to do during this cycle");
+				}
 
 			}
 			m_oLockW.unlock();
+			m_oLogger.Info(GetFileInfo());
 			long diff = (System.nanoTime() - start_time) / 1000000;
 			try {
 				Thread.sleep(m_oConfig.GetReplicationCheckInterval() - diff);

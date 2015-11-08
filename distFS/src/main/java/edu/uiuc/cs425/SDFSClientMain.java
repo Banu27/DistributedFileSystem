@@ -42,6 +42,7 @@ public class SDFSClientMain {
     		System.out.println("3. Delete File");
     		System.out.println("4. List Files at Node");
     		System.out.println("5. List File locations");
+    		System.out.println("6. Get full info");
     		System.out.println("Enter Input ");
     		String sInput = m_oUserInput.nextLine();
     		if( ! sInput.equals("1") && !sInput.equals("2") && !sInput.equals("3") &&
@@ -82,6 +83,9 @@ public class SDFSClientMain {
     			System.out.println("SDFS name");
     			String sSDFS = m_oUserInput.nextLine();
     			client.FileLoc(sSDFS);
+    		} else if(sInput.equals("6"))
+    		{
+    			client.GetFullInfo();;
     		}
     		try {
 				Thread.sleep(500);

@@ -136,4 +136,8 @@ public class CommandIfaceImpl implements Iface {
 		m_oSDFSMaster.DeleteFile(filename);
 	}
 
+	public String GetFullInfo() throws TException {
+		return m_oSDFSMaster.GetFileInfo();
+	}
+
 }
