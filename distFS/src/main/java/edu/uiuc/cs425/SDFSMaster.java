@@ -151,6 +151,22 @@ public class SDFSMaster implements Runnable {
 		return m_oMembership.GetIP(IDs.get(randomNumberGenerator.nextInt(IDs.size())));
 	}
 				
+	void RemoveNodeFromFileLocTable(String uniqueID)
+	{
+		// removing node from all nodeSet of the files
+		m_oLockW.lock();
+		
+		Set<Entry<String, HashSet<String>>> iteratorSet = m_oFileLocationTable.entrySet();
+		Iterator<Entry<String, HashSet<String>>> iterator = iteratorSet.iterator();
+		while(iterator.hasNext())
+		{
+			Entry<String, HashSet<String>> currFile = iterator.next();
+			currFile.getValue().remove(uniqueID);
+		}
+		
+		m_oLockW.unlock();
+	}
+		
 	void DeleteFile(String Filename)	//Thrift
 	{
 		m_oLogger.Info("Received request at MASTER to delete file " + Filename );	
@@ -223,10 +239,11 @@ public class SDFSMaster implements Runnable {
 	
 	void CheckReplication() {
 		// Initial sleep
+		
+		m_oLogger.Info("Replication thread started. Interval-" + Integer.toString(m_oConfig.GetReplicationCheckInterval()));
 		try {
-			Thread.sleep(m_oConfig.GetReplicationCheckInterval()); // Where is this time defined??
+			Thread.sleep(m_oConfig.GetReplicationCheckInterval()); 
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			m_oLogger.Error(m_oLogger.StackTraceToString(e1));
 		}
 
@@ -236,7 +253,7 @@ public class SDFSMaster implements Runnable {
 			long start_time = System.nanoTime();
 
 			// Iterator for each element in File Loc
-			m_oLockR.lock();
+			m_oLockW.lock();
 			Iterator<Entry<String, HashSet<String>>> iterator = m_oFileLocationTable.entrySet().iterator();
 			while (iterator.hasNext()) {
 				// The element - Filename and containing node list
@@ -245,71 +262,88 @@ public class SDFSMaster implements Runnable {
 
 				// Checking node list
 				if (element.getValue().size() != m_oConfig.GetReplicationFactor() && !element.getValue().isEmpty()) {
-					int numberOfReplicasToBeMade = element.getValue().size() - m_oConfig.GetReplicationFactor();
-					Random randNumberGenerator = new Random();
+					
+					// the below number could be negative too
+					int replicationDiff =  m_oConfig.GetReplicationFactor() - element.getValue().size() ;
+					m_oLogger.Info("Replication: found diff of " + Integer.toString(replicationDiff) + " for file " + Filename);
+					Random randNumberGenerator = new Random(m_oMembership.GetMyLocalTime());
 
 					// Getting all the member ids so as to choose ids randomly
 					// for replication
 					ArrayList<String> IDs = m_oMembership.GetMemberIds();
 
-					// New vector to store existing ids
-					Vector<String> idPresent = new Vector<String>(); // Should
-																		// be a
-																		// list
-																		// instead
-
-					for (String id : IDs) {
-						idPresent.addElement(id);
-						IDs.remove(id);
+					ArrayList<String> nodesWithFile = new ArrayList<String>(element.getValue());
+					
+					ArrayList<String> nodesWithoutFile = new ArrayList<String>();
+					
+					for(String id: IDs)
+					{
+						if(!nodesWithFile.contains(id)) nodesWithoutFile.add(id);
 					}
-					for (int i = 0; i < numberOfReplicasToBeMade; i++) {
-						// A random id where copy is to be made
-						String copyIp = m_oMembership.GetIP(IDs.get(randNumberGenerator.nextInt(IDs.size())));
-						CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-
-						// Copy is made from idPresent[0]
-						if (Commons.SUCCESS == ProxyTemp.Initialize(idPresent.get(0), m_oConfig.CmdPort(), m_oLogger)) {
-							try {
-								ProxyTemp.RequestFileCopy(Filename, copyIp);
-							} catch (TException e) {
-								m_oLogger.Error(m_oLogger.StackTraceToString(e));
+					
+					String nodeContainingFile = nodesWithFile.get(0);
+					
+					// case 1: numberOfReplicasToBeMade > 0: Needs more copies
+					if(replicationDiff > 0 && nodesWithoutFile.size() > 0) {
+						// to handle the case when the node count with outfile is less than replicationDiff.
+						// example: 2 more copies needed but only one node available
+						int totalNodesToCopy = Math.min(replicationDiff,nodesWithoutFile.size());
+						m_oLogger.Info("Replication: Total nodes to copy =" + Integer.toString(totalNodesToCopy));
+						for (int i = 0; i < totalNodesToCopy; i++) {
+							// A random id where copy is to be made
+							String memID = nodesWithoutFile.get(randNumberGenerator.nextInt(nodesWithoutFile.size()));
+							
+							String copyIp = m_oMembership.GetIP(memID);
+							CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+	
+							// Copy is made from idPresent[0]
+							String srcIP = m_oMembership.GetIP(nodeContainingFile);
+							if (Commons.SUCCESS == ProxyTemp.Initialize(srcIP, m_oConfig.CmdPort(), m_oLogger)) {
+								try {
+									
+									m_oLogger.Info("Replication: Making request to copy file " + Filename + " from " + srcIP + " to " + copyIp);
+									ProxyTemp.RequestFileCopy(Filename, copyIp);
+								} catch (TException e) {
+									m_oLogger.Error(m_oLogger.StackTraceToString(e));
+								}
 							}
+						
+							// add memID to nodesWithFile and remove from NodeWithoutFile
+							nodesWithFile.add(memID);
+							nodesWithoutFile.remove(memID);
 						}
-						// Call Add file here
-
-						// Removing the copyIp from the list to avoid repetition
-						IDs.remove(copyIp);
-					}
-				}
-				if (element.getValue().size() > m_oConfig.GetReplicationFactor()) {
-					HashSet<String> listOfIds = element.getValue();
-
-					Iterator<String> iteratorElemToBeDeleted = listOfIds.iterator();
-
-					while (listOfIds.size() > m_oConfig.GetReplicationFactor()) {
-						if (iteratorElemToBeDeleted.hasNext()) {
-							String id = iteratorElemToBeDeleted.next();
-							// Delete file at iterator.next()
-
+					} 
+					
+					// case 2: more copies than replication factor. remove those extra ones
+					else if(replicationDiff < 0) {
+						int num_deletes = Math.abs(replicationDiff);
+						m_oLogger.Info("Replication: Total copies to delete =" + Integer.toString(num_deletes));
+						for(int i =0; i< num_deletes;++i)
+						{
+							String memID = nodesWithFile.get(randNumberGenerator.nextInt(nodesWithFile.size()));
 							CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 
 							// Copy is made from idPresent[0]
-							if (Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(id), m_oConfig.CmdPort(),
+							if (Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(memID), m_oConfig.CmdPort(),
 									m_oLogger))
+							{
 								try {
+									m_oLogger.Info("Replication: Making request to delete file " + Filename + " from " + m_oMembership.GetIP(memID));
 									ProxyTemp.DeleteFile(Filename);
 								} catch (TException e) {
 									m_oLogger.Error(m_oLogger.StackTraceToString(e));
 								}
-							listOfIds.remove(id);
-							element.getValue().remove(id);
+								nodesWithFile.remove(memID);
+								nodesWithoutFile.add(memID);
+								element.getValue().remove(memID);
+							}
 						}
+		
 					}
-
 				}
 
 			}
-			m_oLockR.unlock();
+			m_oLockW.unlock();
 			long diff = (System.nanoTime() - start_time) / 1000000;
 			try {
 				Thread.sleep(m_oConfig.GetReplicationCheckInterval() - diff);

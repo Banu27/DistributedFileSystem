@@ -47,6 +47,7 @@ public class Membership implements Runnable{
 	private ConfigAccessor 								m_oAccessor;
 	private	Election									m_oElection;
 	private int											m_nTableLogCount;
+	private SDFSMaster									m_oMaster;
 	
 	public String UniqueId()
 	{
@@ -55,7 +56,7 @@ public class Membership implements Runnable{
 	
 	
 	
-	public int Initialize(ConfigAccessor oAccessor, Logger logger, String introducerIP, Election oElection)
+	public int Initialize(ConfigAccessor oAccessor, Logger logger, String introducerIP, Election oElection, SDFSMaster oMaster)
 	{
 		m_oAccessor = oAccessor;
 		m_oHmap 		= new HashMap<String, MembershipListStruct>();
@@ -77,6 +78,7 @@ public class Membership implements Runnable{
 		
 		m_oLogger.Info(new String("Started Membership class"));
 		m_nTableLogCount = 0;
+		m_oMaster = oMaster;
 		return Commons.SUCCESS;
 	}
 		
@@ -293,6 +295,14 @@ public class Membership implements Runnable{
 							m_oLogger.Info(new String("Finished sending StartElection messages"));
 						
 						}
+						
+						// if leader then send request to master to remvoe the node from the file list
+						if( m_oElection.GetLeaderId().equals(m_sUniqueId))
+						{
+							m_oLogger.Info("Sending request to master to remove the failed node from the file loc table");
+							m_oMaster.RemoveNodeFromFileLocTable(memberStruct.GetUniqueId());
+						}
+							
 						m_oLockW.lock();
 					        m_oLogger.Info(new String("Remvoing suspected node:" + memberStruct.GetIP()));	
 						iterator.remove();
@@ -364,6 +374,17 @@ public class Membership implements Runnable{
 		 ArrayList<String> keyList = new ArrayList<String>(m_oHmap.keySet());
 		 m_oLockR.unlock();
 		 return keyList;
+	 }
+	 
+	 public ArrayList<String> GetMemberIPs()
+	 {
+		 ArrayList<String> members = GetMemberIds();
+		 ArrayList<String> ipList = new ArrayList<String>();
+		 for(String id: members)
+		 	 ipList.add(GetIP(id));
+		 
+		 return ipList;
+		 
 	 }
 	 
 	 //Read lock

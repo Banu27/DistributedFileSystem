@@ -82,7 +82,7 @@ public class Controller {
 		m_oLogger.Info("Nodetype: " + m_sNodeType);
 		
 		//Membership object of class initializing here
-		if( Commons.FAILURE == m_oMember.Initialize(m_oConfig, m_oLogger, introIP, m_oElection) )
+		if( Commons.FAILURE == m_oMember.Initialize(m_oConfig, m_oLogger, introIP, m_oElection,m_oSDFSMaster) )
 		{
 			m_oLogger.Error("Failed to initialize the membership object");
 			return Commons.FAILURE;
