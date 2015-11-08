@@ -155,17 +155,24 @@ public class SDFSMaster implements Runnable {
 	{
 		m_oLogger.Info("Received request at MASTER to delete file " + Filename );
 		Set<String> NodeList = GetFileLocations(Filename);
+		m_oLogger.Info("Found node list: " + NodeList.toString());
 		Iterator<String> iterator = NodeList.iterator();
 		while(iterator.hasNext())
 		{
-			CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
-			if(Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(iterator.next()),m_nCommandServicePort,m_oLogger))
+			String sIP = m_oMembership.GetIP(iterator.next());
+			if(sIP.equals(m_oMembership.GetIP(m_oMembership.UniqueId())))
 			{
-				try {
-					ProxyTemp.DeleteFile(Filename);//The thrift thing has to return from this call.
-				} catch (TException e) {
-					m_oLogger.Error(m_oLogger.StackTraceToString(e));
-				}
+				m_oNodeMgr.DeleteFile(Filename);
+			} else {
+				CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
+				if(Commons.SUCCESS == ProxyTemp.Initialize(sIP,m_nCommandServicePort,m_oLogger))
+				{
+					try {
+						ProxyTemp.DeleteFile(Filename);//The thrift thing has to return from this call.
+					} catch (TException e) {
+						m_oLogger.Error(m_oLogger.StackTraceToString(e));
+					}
+				}	
 			}
 		}
 		m_oFileLocationTable.remove(Filename);
@@ -177,7 +184,7 @@ public class SDFSMaster implements Runnable {
 	Set<String> GetFileLocations(String Filename) 	//Thrift
 	{
 		HashSet<String> nodeList = m_oFileLocationTable.get(Filename);
-		HashSet<String> nodeIps = new HashSet<String>();
+		Set<String> nodeIps = new HashSet<String>();
 		for(String id: nodeList)
 			nodeIps.add(m_oMembership.GetIP(id));
 		return nodeIps;		
