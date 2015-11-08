@@ -259,7 +259,7 @@ public class SDFSMaster implements Runnable {
 			}
 		}
 		m_oLockW.unlock();
-		m_oLogger.Info(GetFileInfo());
+		//m_oLogger.Info(GetFileInfo());
 	}
 	
 	void CheckReplication() {
@@ -323,10 +323,11 @@ public class SDFSMaster implements Runnable {
 	
 							// Copy is made from idPresent[0]
 							String srcIP = m_oMembership.GetIP(nodeContainingFile);
+							m_oLogger.Info("Replication: Making request to copy file " + Filename + " from " + srcIP + " to " + copyIp);
+							
 							if (Commons.SUCCESS == ProxyTemp.Initialize(srcIP, m_oConfig.CmdPort(), m_oLogger)) {
 								try {
 									
-									m_oLogger.Info("Replication: Making request to copy file " + Filename + " from " + srcIP + " to " + copyIp);
 									ProxyTemp.RequestFileCopy(Filename, copyIp);
 								} catch (TException e) {
 									m_oLogger.Error(m_oLogger.StackTraceToString(e));
@@ -349,11 +350,11 @@ public class SDFSMaster implements Runnable {
 							CommandIfaceProxy ProxyTemp = new CommandIfaceProxy();
 
 							// Copy is made from idPresent[0]
+							m_oLogger.Info("Replication: Making request to delete file " + Filename + " from " + m_oMembership.GetIP(memID));
 							if (Commons.SUCCESS == ProxyTemp.Initialize(m_oMembership.GetIP(memID), m_oConfig.CmdPort(),
 									m_oLogger))
 							{
 								try {
-									m_oLogger.Info("Replication: Making request to delete file " + Filename + " from " + m_oMembership.GetIP(memID));
 									ProxyTemp.DeleteFile(Filename);
 								} catch (TException e) {
 									m_oLogger.Error(m_oLogger.StackTraceToString(e));
