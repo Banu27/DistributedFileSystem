@@ -123,6 +123,11 @@ public class CommandIfaceProxy implements Iface {
 	{
 		m_oClient.RequestFileCopy(filename,nodeID);
 	}
+
+	public void DeleteFileMaster(String filename) throws TException {
+		
+		m_oClient.DeleteFileMaster(filename);
+	}
 	
 	
 }

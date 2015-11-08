@@ -13,7 +13,8 @@ service CommandInterface{
  	int AddFile(1:int size, 2:string fileID, 3:binary payload, 4:bool replicate); #Client to NodeFileManager
  	string RequestAddFile(1:string filename); 							#Client to Master
  	set<string> GetFileLocations(1:string filename); 					#Client to Master
-	list<string> GetAvailableFiles() 									#Client to Master   	
+	list<string> GetAvailableFiles(); 									#Client to Master   
+	void  DeleteFileMaster(1:string filename); 							#Client to Master
 	binary GetFile(1:string filename) 								#Client to node with a copy of the file
 	oneway void FileStorageAck(1:string filename, 2:string incomingID) 	#Node to Master after copy is made
 	oneway void RequestFileCopy(1:string filename, 2:string nodeID)		#Replica Manager to Node containing file	

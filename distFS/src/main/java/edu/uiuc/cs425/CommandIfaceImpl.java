@@ -132,4 +132,8 @@ public class CommandIfaceImpl implements Iface {
 		m_oNodeMgr.RequestFileCopy(filename,nodeID);
 	}
 
+	public void DeleteFileMaster(String filename) throws TException {
+		m_oSDFSMaster.DeleteFile(filename);
+	}
+
 }
