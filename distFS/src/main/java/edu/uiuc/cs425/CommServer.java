@@ -62,8 +62,9 @@ public class CommServer {
             	try {
             		TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(nPort);
             		TNonblockingServer.Args args = new TNonblockingServer.Args(serverTransport).processor(new CommandInterface.Processor(m_oCommandImpl));
-        		    TServer server = new TNonblockingServer(args);
+        		    
         		    args.transportFactory(new TFramedTransport.Factory(16384000*4));
+        		    TServer server = new TNonblockingServer(args);
         		    
         		    server.serve();
         		} catch (TException e)
