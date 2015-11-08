@@ -228,7 +228,7 @@ public class Membership implements Runnable{
 		}
 		m_oLockR.unlock();
 		msg.append("The leader is : " + m_oElection.GetLeaderId());
-		msg.append("===========ENDLIST============");
+		msg.append("\n===========ENDLIST============");
 		m_oLogger.Debug(msg.toString());
 	}
 	

@@ -127,7 +127,7 @@ public class SDFSMaster implements Runnable {
 	public String GetFileInfo() //List used because of thrift
 	{
 		String out = new String();
-		out += "=======Begin SDFS File Info=======";
+		out += "=======Begin SDFS File Info=======\n";
 		m_oLockR.lock();
 		Set<Entry<String, HashSet<String>>> iteratorSet = m_oFileLocationTable.entrySet();
 		Iterator<Entry<String, HashSet<String>>> iterator = iteratorSet.iterator();
