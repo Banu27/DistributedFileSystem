@@ -153,13 +153,14 @@ public class SDFSMaster implements Runnable {
 				
 	void DeleteFile(String Filename)	//Thrift
 	{
-		m_oLogger.Info("Received request at MASTER to delete file " + Filename );
+		m_oLogger.Info("Received request at MASTER to delete file " + Filename );	
 		Set<String> NodeList = GetFileLocations(Filename);
 		m_oLogger.Info("Found node list: " + NodeList.toString());
 		Iterator<String> iterator = NodeList.iterator();
 		while(iterator.hasNext())
 		{
 			String sIP = m_oMembership.GetIP(iterator.next());
+			m_oLogger.Info("========" + sIP  + "========");
 			if(sIP.equals(m_oMembership.GetIP(m_oMembership.UniqueId())))
 			{
 				m_oNodeMgr.DeleteFile(Filename);
