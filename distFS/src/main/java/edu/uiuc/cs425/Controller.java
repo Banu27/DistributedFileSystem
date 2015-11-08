@@ -252,16 +252,14 @@ public class Controller {
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						m_oLogger.Error(m_oLogger.StackTraceToString(e));
 					}
 					m_oLogger.Warning(new String("Leader not alive. Trying in 5 secs"));			
 				}
 				m_oElection.SetLeader(proxy.GetLeaderId());
 				
 			} catch (TException e3) {
-				// TODO Auto-generated catch block
-				e3.printStackTrace();
+				m_oLogger.Error(m_oLogger.StackTraceToString(e3));
 			}
 			
 			ByteBuffer buf;
@@ -317,8 +315,7 @@ public class Controller {
 								try {
 									Thread.sleep(5000);
 								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									m_oLogger.Error(m_oLogger.StackTraceToString(e));
 								}
 								m_oLogger.Warning("Leader not alive now. Trying in 5 secs");									
 							}
@@ -340,7 +337,7 @@ public class Controller {
 					m_oLogger.Error(m_oLogger.StackTraceToString(e));
 					return Commons.FAILURE;
 				} catch (TException e) {
-					e.printStackTrace();
+					m_oLogger.Warning(m_oLogger.StackTraceToString(e));
 				}
 			} else if(sInput.equalsIgnoreCase("no"))
 			{
@@ -412,8 +409,7 @@ public class Controller {
 	        		try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						m_oLogger.Error(m_oLogger.StackTraceToString(e));
 					}
             	}
         	} 

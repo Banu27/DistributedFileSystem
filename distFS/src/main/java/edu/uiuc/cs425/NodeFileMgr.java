@@ -99,10 +99,10 @@ public class NodeFileMgr implements Runnable {
 				try {
 					proxy.AddFile(file_.m_nSize, file_.m_sFileID, file_.GetBuffer(), false);
 				} catch (TException e) {
-					e.printStackTrace();
+					m_oLogger.Warning(m_oLogger.StackTraceToString(e));
 					failcount++;
 				} catch (IOException e) {
-					e.printStackTrace();
+					m_oLogger.Warning(m_oLogger.StackTraceToString(e));
 					failcount++;
 				}
 			}
@@ -191,7 +191,7 @@ public class NodeFileMgr implements Runnable {
 				try {
 					proxy.SendFileReport(GetFileReport());
 				} catch (IOException e) {
-					e.printStackTrace();
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
 				}
 			}
 			

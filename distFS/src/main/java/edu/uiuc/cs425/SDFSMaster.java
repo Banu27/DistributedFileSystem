@@ -109,8 +109,7 @@ public class SDFSMaster implements Runnable {
 							}
 						}
 					} catch (TException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						m_oLogger.Error(m_oLogger.StackTraceToString(e));
 					}
 				}
 			}
@@ -142,6 +141,7 @@ public class SDFSMaster implements Runnable {
 	
 	public String RequestAddFile(String FileId) // thrift //What is payload??
 	{
+		m_oLogger.Info("Received request at MASTER to add file " + FileId );
 		//Populate values (nodeList) if acknowledgement is received
 		m_oLockW.lock();
 		m_oFileLocationTable.put(FileId, new HashSet<String>());
@@ -153,6 +153,7 @@ public class SDFSMaster implements Runnable {
 				
 	void DeleteFile(String Filename)	//Thrift
 	{
+		m_oLogger.Info("Received request at MASTER to delete file " + Filename );
 		HashSet<String> NodeList = m_oFileLocationTable.get(Filename);
 		Iterator<String> iterator = NodeList.iterator();
 		while(iterator.hasNext())
@@ -163,8 +164,7 @@ public class SDFSMaster implements Runnable {
 				try {
 					ProxyTemp.DeleteFile(Filename);//The thrift thing has to return from this call.
 				} catch (TException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
 				}
 			}
 		}
@@ -264,8 +264,7 @@ public class SDFSMaster implements Runnable {
 							try {
 								ProxyTemp.RequestFileCopy(Filename, copyIp);
 							} catch (TException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								m_oLogger.Error(m_oLogger.StackTraceToString(e));
 							}
 						}
 						// Call Add file here
@@ -292,8 +291,7 @@ public class SDFSMaster implements Runnable {
 								try {
 									ProxyTemp.DeleteFile(Filename);
 								} catch (TException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+									m_oLogger.Error(m_oLogger.StackTraceToString(e));
 								}
 							listOfIds.remove(id);
 							element.getValue().remove(id);

@@ -31,11 +31,9 @@ public class SDFSFile {
 			channel.write(data);
 			channel.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Commons.FAILURE;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Commons.FAILURE;
 		}

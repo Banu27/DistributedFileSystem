@@ -75,7 +75,7 @@ public class SDFSClient {
 				
 			}
 		} catch (TException e1) {
-			e1.printStackTrace();
+			m_oLogger.Error(m_oLogger.StackTraceToString(e1));
 			return Commons.FAILURE;
 		}
 		m_oLogger.Info("Addfile(): Updating leader proxy");
@@ -263,8 +263,7 @@ public class SDFSClient {
 			else
 				System.out.println("No files in the node");
 		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 		}
 		
 	}

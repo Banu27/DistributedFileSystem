@@ -82,8 +82,7 @@ public class Heartbeat implements Runnable {
 		try {
 			buf = m_oMship.GetMemberList(); //Does this contain only 1 member - introducer??
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 			return;
 		}
 		for (String sIP: sIPs) {  
@@ -93,11 +92,9 @@ public class Heartbeat implements Runnable {
 				try {
 					proxy.SendMembershipList(buf);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					m_oLogger.Error(m_oLogger.StackTraceToString(e));
 				} // continue after exception
 			}
 		}
@@ -108,7 +105,6 @@ public class Heartbeat implements Runnable {
 		try {
 			Thread.sleep(m_nGossipInterval); 
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 			return;
 		}

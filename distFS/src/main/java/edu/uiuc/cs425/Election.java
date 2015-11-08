@@ -132,8 +132,7 @@ public class Election {
 				try {
 						ProxyTemp.ReceiveCoordinationMessage(m_sLeaderId);
 					} catch (TException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						m_oLogger.Error(m_oLogger.StackTraceToString(e));
 					}
 			}
 
