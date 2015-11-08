@@ -46,7 +46,7 @@ public class SDFSClientMain {
     		System.out.println("Enter Input ");
     		String sInput = m_oUserInput.nextLine();
     		if( ! sInput.equals("1") && !sInput.equals("2") && !sInput.equals("3") &&
-    				! sInput.equals("4") && !sInput.equals("5"))
+    				! sInput.equals("4") && !sInput.equals("5") && !sInput.equals("6"))
     		{
     			System.out.println("Invalid input");
     			continue;

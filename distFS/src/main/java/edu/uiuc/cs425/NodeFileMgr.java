@@ -194,6 +194,7 @@ public class NodeFileMgr implements Runnable {
 		{
 			if((DNTable.size() > 0) && m_oElection.IsLeaderAlive())
 			{
+				m_oLogger.Info("Sending file report to master");
 				FileReportProxy proxy = new FileReportProxy();
 				String ip = m_oElection.GetLeaderIP();
 				proxy.Initialize(ip, m_oAccesor.GetFRPort(), m_oLogger);
