@@ -109,6 +109,7 @@ public class SDFSClient {
 	
 	public int AddFile(String localPath, String SDFSName)
 	{
+		localPath = m_oConfig.ClientSrcDir() + localPath;
 		m_oLogger.Info("Addfile(): Updating proxy");
 		if(UpdateProxies() == Commons.FAILURE)
 		{
@@ -168,6 +169,7 @@ public class SDFSClient {
 	
 	public void GetFile(String SDFSName, String localPath)
 	{
+		localPath = m_oConfig.ClientDestDir() + localPath;
 		m_oLogger.Info("GetFile(): Updating proxy");
 		if(UpdateProxies() == Commons.FAILURE)
 		{

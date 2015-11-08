@@ -19,6 +19,7 @@ import java.io.IOException;
    <Logger path="" />
    <FileReport port="3425" interval="10000" />
    <Replication interval="30000" factor="3" />
+   <SDFS dataDir="" clientSrcDir="" clientDestDir="" />
 </MembershipConfig>
  */
 
@@ -36,10 +37,28 @@ public class ConfigAccessor {
 	private int 		m_nFRInterval;
 	private int			m_nReplicationFactor;;
 	private int 		m_nReplicationCheckInterval;
+	private String 		m_sSDFSDataDir;
+	private String      m_sClientSrcDir;
+	private String      m_sClientDestDir;
 	
 	public ConfigAccessor()
 	{
 		
+	}
+	
+	public String SDFSDataDir()
+	{
+		return m_sSDFSDataDir;
+	}
+	
+	public String ClientSrcDir()
+	{
+		return m_sClientSrcDir;
+	}
+	
+	public String ClientDestDir()
+	{
+		return m_sClientDestDir;
 	}
 	
 	public String       LogPath()
@@ -177,6 +196,14 @@ public class ConfigAccessor {
 				Element eElement = (Element) nNode;
 				m_nReplicationFactor = Integer.parseInt(eElement.getAttribute("factor"));
 				m_nReplicationCheckInterval = Integer.parseInt(eElement.getAttribute("interval"));
+			}
+			else if (nNode.getNodeName() == "SDFS")
+			{
+				Element eElement = (Element) nNode;
+				
+				m_sSDFSDataDir		= eElement.getAttribute("dataDir");
+				m_sClientSrcDir 	= eElement.getAttribute("clientSrcDir");
+				m_sClientDestDir 	= eElement.getAttribute("m_sClientDestDir");
 			}
 		}
 		return Commons.SUCCESS;

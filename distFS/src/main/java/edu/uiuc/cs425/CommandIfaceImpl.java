@@ -14,30 +14,17 @@ public class CommandIfaceImpl implements Iface {
 	private Election  		m_oElection;
 	private NodeFileMgr     m_oNodeMgr;
 	private SDFSMaster		m_oSDFSMaster;
+	private ConfigAccessor  m_oConfig;
 	
-	public void SetIntoObj(Introducer oIntroObj)
+	
+	public int Initialize(Introducer oIntroObj, NodeFileMgr oNMObj, Election oElectionObj, 
+			SDFSMaster oMaster, ConfigAccessor oAccessor)
 	{
 		this.m_oIntroObj = oIntroObj;
-	}
-	
-	public void SetNMObj(NodeFileMgr oNMObj)
-	{
 		this.m_oNodeMgr = oNMObj;
-	}
-	
-	public void setElectionObj(Election oElectionObj)
-	{
 		this.m_oElection = oElectionObj;
-	}
-	
-	public void SetMasterObject(SDFSMaster oMaster)
-	{
 		this.m_oSDFSMaster = oMaster;
-	}
-	
-	// not sure the purpose of this function but might be needed in the future
-	public int Initialize()
-	{
+		this.m_oConfig = oAccessor;
 		return Commons.SUCCESS;
 	}
 	
@@ -84,7 +71,7 @@ public class CommandIfaceImpl implements Iface {
 	public int AddFile(int size, String fileID, ByteBuffer payload, boolean replicate) throws TException {
 				
 		// create the SDFS file obj
-		SDFSFile file_ = new SDFSFile(size, fileID, Commons.SDFS_LOC + fileID);
+		SDFSFile file_ = new SDFSFile(size, fileID, m_oConfig.SDFSDataDir() + fileID);
 		file_.AddFileData(payload);
 		// forward the info to the node manager
 		return m_oNodeMgr.AddFile(file_, replicate);

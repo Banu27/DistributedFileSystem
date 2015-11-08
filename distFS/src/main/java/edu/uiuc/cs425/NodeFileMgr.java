@@ -214,7 +214,7 @@ public class NodeFileMgr implements Runnable {
 		    long fSize;
 
 		    try {
-		      fIn = new FileInputStream(Commons.SDFS_LOC + SDFSName);
+		      fIn = new FileInputStream(m_oAccesor.SDFSDataDir() + SDFSName);
 		      fChan = fIn.getChannel();
 		      fSize = fChan.size();
 		      mBuf = ByteBuffer.allocate((int) fSize);

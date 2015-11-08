@@ -27,15 +27,7 @@ public class CommServer {
 	{
 		m_oCommandImpl 		= new CommandIfaceImpl(); //Why does the Introducer not have a hb recvr??
 		m_oLogger			= oLogger;
-		if( Commons.FAILURE == m_oCommandImpl.Initialize())
-		{
-			oLogger.Error("Failed to initialize the the thrift introducer");
-			return Commons.FAILURE;
-		}
-		m_oCommandImpl.SetIntoObj(oIntroducer);
-		m_oCommandImpl.setElectionObj(oElection);
-		m_oCommandImpl.SetMasterObject(oMaster);
-		m_oCommandImpl.SetNMObj(nodeMgr);
+		m_oCommandImpl.Initialize(oIntroducer, nodeMgr, oElection, oMaster, oAccessor);
 		
 		// heartbeat recvr
 		m_oHBRecvr 			= new HeartBeatReceiver();

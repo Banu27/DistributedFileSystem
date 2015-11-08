@@ -216,7 +216,7 @@ public class SDFSMaster implements Runnable {
 	void CheckReplication() {
 		// Initial sleep
 		try {
-			Thread.sleep(3000); // Where is this time defined??
+			Thread.sleep(m_oConfig.GetReplicationCheckInterval()); // Where is this time defined??
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			m_oLogger.Error(m_oLogger.StackTraceToString(e1));
