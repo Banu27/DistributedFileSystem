@@ -4,6 +4,7 @@ import edu.uiuc.cs425.CommandIfaceImpl;
 import org.apache.thrift.TException;
 import org.apache.thrift.server.TNonblockingServer;
 import org.apache.thrift.server.TServer;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TServerSocket;
@@ -60,7 +61,10 @@ public class CommServer {
             public void run() { 
             	try {
             		TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(nPort);
-        		    TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(new CommandInterface.Processor(m_oCommandImpl)));
+            		TNonblockingServer.Args args = new TNonblockingServer.Args(serverTransport).processor(new CommandInterface.Processor(m_oCommandImpl));
+        		    TServer server = new TNonblockingServer(args);
+        		    args.transportFactory(new TFramedTransport.Factory(16384000*4));
+        		    
         		    server.serve();
         		} catch (TException e)
         		{
