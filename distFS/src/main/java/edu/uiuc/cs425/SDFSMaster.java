@@ -154,7 +154,7 @@ public class SDFSMaster implements Runnable {
 	void DeleteFile(String Filename)	//Thrift
 	{
 		m_oLogger.Info("Received request at MASTER to delete file " + Filename );
-		HashSet<String> NodeList = m_oFileLocationTable.get(Filename);
+		Set<String> NodeList = GetFileLocations(Filename);
 		Iterator<String> iterator = NodeList.iterator();
 		while(iterator.hasNext())
 		{
