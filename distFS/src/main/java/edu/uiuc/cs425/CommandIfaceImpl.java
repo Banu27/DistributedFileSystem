@@ -1,6 +1,8 @@
 package edu.uiuc.cs425;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -62,7 +64,10 @@ public class CommandIfaceImpl implements Iface {
 	}
 	
 	public Set<String> GetFileLocations(String filename) throws TException {
-		return m_oSDFSMaster.GetFileLocations(filename);
+		Set<String> ret = m_oSDFSMaster.GetFileLocations(filename);
+		if( ret == null) 
+			ret = new HashSet<String>();
+		return ret;
 	}
 	
 	
@@ -88,7 +93,12 @@ public class CommandIfaceImpl implements Iface {
 	
 	public List<String> GetAvailableFiles() throws TException
 	{
-		return m_oSDFSMaster.GetAvailableFiles();
+		List<String> ret = m_oSDFSMaster.GetAvailableFiles();
+		if( ret == null)
+		{
+			ret = new ArrayList<String>();
+		}
+		return ret;
 	}
 
 	
@@ -107,7 +117,10 @@ public class CommandIfaceImpl implements Iface {
 	}
 
 	public Set<String> GetFileList() throws TException {
-		return m_oNodeMgr.GetFileList();
+		Set<String> ret = m_oNodeMgr.GetFileList();
+		if( ret == null) 
+			ret = new HashSet<String>();
+		return ret;
 	}
 
 	public void RequestFileCopy(String filename, String nodeID) throws TException
