@@ -41,7 +41,7 @@ public class SDFSClientMain {
     		System.out.println("2. Retrieve File");
     		System.out.println("3. Delete File");
     		System.out.println("4. List Files at Node");
-    		System.out.println("3. List File locations");
+    		System.out.println("5. List File locations");
     		System.out.println("Enter Input ");
     		String sInput = m_oUserInput.nextLine();
     		if( ! sInput.equals("1") && !sInput.equals("2") && !sInput.equals("3") &&

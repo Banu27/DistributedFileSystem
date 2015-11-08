@@ -21,6 +21,7 @@ public class SDFSClient {
 	private CommandIfaceProxy m_oMasterProxy;
 	private Logger			  m_oLogger;
 	private ConfigAccessor    m_oConfig;
+	private boolean           m_bInit;
 	
 	SDFSClient(Logger logger, ConfigAccessor oAccessor)
 	{
@@ -28,10 +29,15 @@ public class SDFSClient {
 		m_oConfig 		= oAccessor;
 		m_oIntoProxy 	= new CommandIfaceProxy();
 		m_oMasterProxy  = new CommandIfaceProxy();
+		m_bInit         = false;
 	}
 	
 	private int UpdateProxies() 
 	{
+		if(m_bInit) {
+			m_oIntoProxy.Close();
+			m_oMasterProxy.Close();
+		}
 		int counter = 0;
 		// continuous pinging for introducer to connect
 		m_oLogger.Info("Addfile(): Updating introducer proxy");
@@ -103,7 +109,7 @@ public class SDFSClient {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
 			return Commons.FAILURE;
 		}
-		
+		m_bInit = true;
 		return Commons.SUCCESS;
 	}
 	
@@ -282,7 +288,7 @@ public class SDFSClient {
 			
 		} catch (TException e) {
 			m_oLogger.Error(m_oLogger.StackTraceToString(e));
-			System.out.println("Connection error while deleting files");
+			System.out.println("Connection error while trying to locate files");
 		}
 	}
 }
