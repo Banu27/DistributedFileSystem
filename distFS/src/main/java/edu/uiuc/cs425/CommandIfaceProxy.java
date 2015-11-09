@@ -28,7 +28,7 @@ public class CommandIfaceProxy implements Iface {
 	public int Initialize(String sIP,int nPort,Logger oLogger)
 	{
 		m_oLogger	= oLogger;
-		transport = new TFramedTransport(new TSocket(sIP, nPort));
+		transport = new TFramedTransport(new TSocket(sIP, nPort),1500000000);
 	    try {
 			transport.open();
 		} catch (TTransportException e) {
