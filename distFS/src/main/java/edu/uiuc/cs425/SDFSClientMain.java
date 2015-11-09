@@ -58,21 +58,28 @@ public class SDFSClientMain {
     			String sLocal = m_oUserInput.nextLine();
     			System.out.println("SDFS name");
     			String sSDFS = m_oUserInput.nextLine();
+    			long start_time = System.nanoTime();
     			client.AddFile(sLocal, sSDFS);
+    			long diff = (System.nanoTime() - start_time) / 1000000;
+    			System.out.println("Latency: " + Long.toString(diff) + " ms");
     		} else if(sInput.equals("2"))
     		{
     			System.out.println("SDFS name");
     			String sSDFS = m_oUserInput.nextLine();
     			System.out.println("Local filepath");
     			String sLocal = m_oUserInput.nextLine();
-    			
+    			long start_time = System.nanoTime();
     			client.GetFile(sSDFS, sLocal);
+    			long diff = (System.nanoTime() - start_time) / 1000000;
+    			System.out.println("Latency: " + Long.toString(diff) + " ms");
     		} else if(sInput.equals("3"))
     		{
     			System.out.println("SDFS name");
     			String sSDFS = m_oUserInput.nextLine();
-    			
+    			long start_time = System.nanoTime();
     			client.DeleteFile(sSDFS);
+    			long diff = (System.nanoTime() - start_time) / 1000000;
+    			System.out.println("Latency: " + Long.toString(diff) + " ms");
     		}  else if(sInput.equals("4"))
     		{
     			System.out.println("Enter NodeIP");
