@@ -63,7 +63,7 @@ public class CommServer {
             		TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(nPort);
             		TNonblockingServer.Args args = new TNonblockingServer.Args(serverTransport).processor(new CommandInterface.Processor(m_oCommandImpl));
         		    
-        		    args.transportFactory(new TFramedTransport.Factory(16384000*4));
+        		    args.transportFactory(new TFramedTransport.Factory(1500000000));
         		    TServer server = new TNonblockingServer(args);
         		    
         		    server.serve();
